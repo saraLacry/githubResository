@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="announcementMapper">
+	<resultMap type="com.lxit.crm.entity.Notice" id="resultAnnouncementMap">
+		<id column="noticenotIds" property="noticenotIds" />
+		<result column="noticenotId" property="noticenotId" />
+		<result column="noticetitle" property="noticetitle" />
+		<result column="noticenotId" property="noticenotId" />
+		<result column="createTimes" property="createTime" />
+		<result column="dectionarycodingId" property="typeName" />
+		<result column="releaseId" property="releaseName" />
+	</resultMap>
+
+	<!-- 查询所有公告 -->
+	<select id="announcementSelectAll" resultMap="resultAnnouncementMap">
+		select
+		noticenotIds,noticenotId,noticetitle,dectionarycodingId,releaseId,createTimes,noticecontent
+		from notice
+	</select>
+
+	<parameterMap type="com.lxit.crm.entity.Notice" id="parmsAnnouncementAdd">
+		<parameter property="noticenotId" />
+		<parameter property="noticetitle" />
+		<parameter property="typeName" />
+		<parameter property="noticecontent" />
+		<parameter property="releaseName" />
+		<parameter property="createTime" />
+	</parameterMap>
+
+	<!-- 增加公告 -->
+	<select id="announcementAdd" parameterMap="parmsAnnouncementAdd"
+		resultType="com.lxit.crm.entity.Notice">
+		insert into notice
+		(noticenotId,noticetitle,dectionarycodingId,noticecontent,releaseId,createTimes)
+		VALUES(#{noticenotId},#{noticetitle},#{typeName},#{noticecontent},#{releaseName},#{createTime});
+	</select>
+	<parameterMap type="com.lxit.crm.entity.Notice" id="parmsAnnouncementUpdate">
+		<parameter property="noticenotIds" />
+		<parameter property="noticenotId" />
+		<parameter property="noticetitle" />
+		<parameter property="typeName" />
+		<parameter property="noticecontent" />
+		<parameter property="createTime" />
+	</parameterMap>
+
+	<!-- 修改公告 -->
+	<select id="announcementUpdate" parameterMap="parmsAnnouncementUpdate"
+		resultType="com.lxit.crm.entity.Notice">
+		update notice SET noticenotId =#{noticenotId} ,noticetitle
+		=
+		#{noticetitle},dectionarycodingId = #{typeName},noticecontent
+		=#{noticecontent}, createTimes = #{createTime} where noticenotIds =
+		#{noticenotIds}
+	</select>
+	<parameterMap type="com.lxit.crm.entity.Notice" id="parmsAnnouncementDel">
+		<parameter property="noticenotIds" />
+	</parameterMap>
+
+	<!-- 删除公告 -->
+	<select id="announcementDel" parameterMap="parmsAnnouncementDel"
+		resultType="com.lxit.crm.entity.Notice">
+		delete from notice where noticenotIds = #{noticenotIds}
+	</select>
+	<parameterMap type="com.lxit.crm.entity.Notice" id="parmsAnnouncementAsspiceSelect">
+		<parameter property="typeName" />
+	</parameterMap>
+
+	<!-- 查询指定公告类型 -->
+	<select id="announcementAsspiceSelect" parameterMap="parmsAnnouncementAsspiceSelect"
+		resultType="com.lxit.crm.entity.Dictionary">
+		select DISTINCT d1.dectionarycodingId,d1.dictionaryvalue
+		from dictionary d1,notice n1 where n1.dectionarycodingId =
+		d1.dectionarycodingId and d1.dectionarycodingId = #{typeName}
+	</select>
+
+	<!-- 查询公告类型 -->
+	<select id="announcementSelect" resultType="com.lxit.crm.entity.Dictionary">
+		select DISTINCT
+		d1.dectionarycodingId,d1.dictionaryvalue
+		from dictionary d1,notice n1
+		where n1.dectionarycodingId =
+		d1.dectionarycodingId
+	</select>
+</mapper>

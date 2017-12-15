@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Sell">
+	<resultMap type="com.lxit.crm.entity.Plan" id="plan">
+		<id column="pid" property="id" />
+		<result column="pdate" property="date" />
+		<result column="dictionaryvalue" property="state" />
+		<result column="plastDate" property="lastDate" />
+		<result column="planText" property="planText" />
+		<result column="uname" property="lastUserName" />
+		<result column="sname" property="manageUser" />
+		<result column="usname" property="createName" />
+		<result column="pplanNumber" property="planNumber" />
+		<association property="createUser" javaType="com.lxit.crm.entity.User">
+			<id column="usId" property="userId" />
+			<result column="usnumber" property="userNumber" />
+			<result column="usname" property="userName" />
+			<result column="leaId" property="leaduserId" />
+		</association>
+		<association property="user" javaType="com.lxit.crm.entity.User">
+			<id column="uid" property="userId"/>
+		</association>
+	</resultMap>
+
+
+	<select id="getCount" parameterType="java.util.Map" resultType="int">
+		select count(1) from plan where 1=1
+		<if test="userId!=null">
+		 and (createUserId=#{userId} or manageUserId=#{userId})
+		</if>
+		<if test="query!=null">
+			and date > #{query} and date &lt;
+			date_add(#{query}'-01',INTERVAL 1 month)
+		</if>
+	</select>
+
+
+
+	<select id="getList" parameterType="java.util.Map" resultMap="plan">
+		select p.planNumber as pplanNumber,p.id as pid,p.date as
+		pdate,p.lastDate as plastDate,planText,u.userId as usid,u.leaduserId
+		as leaId,u.userNumber
+		as usnum ,u.userName as usname,u1.userName as
+		uname ,u2.userName as
+		sname,u2.userId as uid ,dictionaryvalue from plan p LEFT JOIN user
+		u on p.createUserId =
+		u.userId LEFT JOIN dictionary d on p.state =
+		d.dectionarycodingId LEFT
+		JOIN user u1 on u1.userId = p.lastUserId LEFT
+		JOIN User u2 on
+		u2.userId = p.manageUserId where 1=1
+		<if test="userId!=null">
+		 and (p.createUserId=#{userId} or p.manageUserId=#{userId})
+		</if>
+		<if test="query!=null">
+			and p.date > #{query} and p.date &lt;
+			date_add(#{query}'-01',INTERVAL 1 month)
+		</if>
+		ORDER BY p.date ASC
+		limit #{pageIndex},#{pageSize}
+	</select>
+
+
+	<insert id="save" parameterType="com.lxit.crm.entity.Plan">
+		insert into plan
+		(planNumber,createUserId,date,state,lastDate,lastUserId,planText,manageUserId)values(#{planNumber},#{createUser.userId},#{date},#{state},#{lastDate},#{lastUserName},#{planText},#{manageUser})
+	</insert>
+
+	<delete id="delete" parameterType="int">
+		delete from plan where id =
+		#{id}
+	</delete>
+
+	<update id="update" parameterType="com.lxit.crm.entity.Plan">
+		update plan
+		<set>
+			<if test="planNumber != null and planNumber != ''">
+				planNumber=#{planNumber},
+			</if>
+			<if test="date != null and date != ''">
+				date=#{date},
+			</if>
+			<if test="state != null and state != ''">
+				state=#{state},
+			</if>
+			<if test="planText != null and planText != ''">
+				planText=#{planText},
+			</if>
+			<if test="manageUser != null and manageUser != ''">
+				manageUserId=#{manageUser},
+			</if>
+			lastDate=#{lastDate},
+			lastUserId=#{lastUserName},
+		</set>
+		where id=#{id}
+	</update>
+</mapper>

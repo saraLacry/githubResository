@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tool="http://www.springframework.org/schema/tool"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:cache="http://www.springframework.org/schema/cache"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jaxws="http://cxf.apache.org/jaxws" xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+		      http://www.springframework.org/schema/beans/spring-beans.xsd
+		      http://www.w3.org/2001/XMLSchema-instance
+		      http://www.w3.org/2001/XMLSchema-instance/spring-instance.xsd
+		      http://www.springframework.org/schema/tool
+		      http://www.springframework.org/schema/tool/spring-tool.xsd
+		      http://www.springframework.org/schema/aop
+		      http://www.springframework.org/schema/aop/spring-aop.xsd
+		      http://www.springframework.org/schema/jdbc
+		      http://www.springframework.org/schema/jdbc/spring-jdbc.xsd
+		      http://www.springframework.org/schema/tx
+		      http://www.springframework.org/schema/tx/spring-tx.xsd
+		      http://www.springframework.org/schema/cache
+		      http://www.springframework.org/schema/cache/spring-cache.xsd
+		      http://www.springframework.org/schema/util
+		      http://www.springframework.org/schema/util/spring-util.xsd
+		      http://www.springframework.org/schema/context
+		      http://www.springframework.org/schema/context/spring-context.xsd
+		      http://www.springframework.org/schema/mvc
+		      http://www.springframework.org/schema/mvc/spring-mvc.xsd
+		      http://cxf.apache.org/jaxws
+		      http://cxf.apache.org/schemas/jaxws.xsd
+		      http://cxf.apache.org/bindings/soap 
+			  http://cxf.apache.org/schemas/configuration/soap.xsd
+		      ">
+	<!-- spring -->
+	<!-- 开启注解 -->
+	<aop:aspectj-autoproxy />
+
+	<context:annotation-config />
+	<!-- 扫描 base-package 下所有的包,给予自动注入 -->
+	<context:component-scan base-package="com.lxit.crm" />
+
+	<!-- 配置c3p0连接池属性 -->
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource"
+		destroy-method="close">
+		<property name="driverClass" value="com.mysql.jdbc.Driver" />
+		<property name="jdbcUrl"
+			value="jdbc:mysql://192.168.0.228:3306/ssm_crm?characterEncoding=utf-8" />
+		<property name="user" value="root" />
+		<property name="password" value="root" />
+		<!-- 队列中的最小连接数 -->
+		<property name="minPoolSize" value="15"></property>
+		<!-- 队列中的最大连接数 -->
+		<property name="maxPoolSize" value="25"></property>
+		<!-- 当连接耗尽时创建的连接数 -->
+		<property name="acquireIncrement" value="15"></property>
+		<!-- 等待时间 -->
+		<property name="checkoutTimeout" value="10000"></property>
+		<!-- 初始化连接数 -->
+		<property name="initialPoolSize" value="20"></property>
+		<!-- 最大空闲时间，超出时间连接将被丢弃 -->
+		<property name="maxIdleTime" value="20"></property>
+		<!-- 每隔60秒检测空闲连接 -->
+		<property name="idleConnectionTestPeriod" value="60000"></property>
+	</bean>
+
+	<!-- springMVC -->
+
+	<!-- 配置Spring MVC自动扫描的路径 -->
+	<context:component-scan base-package="com.lxit.crm.controller" />
+
+	<!-- 视图解析器：将逻辑视图转发到对应的物理视图 -->
+	<bean
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="/WEB-INF/view/" />
+		<property name="suffix" value=".jsp" />
+	</bean>
+
+	<!--将非mapping配置下的请求交给默认的Servlet来处理 -->
+	<mvc:default-servlet-handler />
+	<!--如果添加了默认servlet，mvc请求将无效，需要添加annotation-driven -->
+	<mvc:annotation-driven />
+
+	<!-- json配置 -->
+	<bean id="stringConverter"
+		class="org.springframework.http.converter.StringHttpMessageConverter">
+		<!-- 将StringHttpMessageConverter转换成枚举类型 -->
+		<property name="supportedMediaTypes">
+			<list>
+				<!-- 然后将枚举类型转换成UTF-8类型 -->
+				<value>text/plain;charset=UTF-8</value>
+			</list>
+		</property>
+	</bean>
+	<!-- 转换成MappingJackson2HttpMessageConverter -->
+	<bean id="jsonConverter"
+		class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter"></bean>
+	<!--然后在用适配器 AnnotationMethodHandlerAdapter去处理json -->
+	<bean
+		class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
+		<property name="messageConverters">
+			<list>
+				<!-- 适配器中需要调用StringHttpMessageConverter和MappingJackson2HttpMessageConverter -->
+				<ref bean="stringConverter" />
+				<ref bean="jsonConverter" />
+			</list>
+		</property>
+	</bean>
+
+	<!-- Mybatis -->
+	<!--(第一种使用) (第二种使用) Spring和Mybatis完美整合 (第三种只使用这一个) -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<!-- 自动扫描mapping.xml文件,**表示代替查找,也可以在mybatis中单独查找指定xml文件 -->
+		<property name="mapperLocations" value="classpath:com/lxit/crm/dao/*.xml" />
+	</bean>
+
+	<!-- mybatis spring sqlSessionTemplate,使用时直接让spring注入即可 (第二种使用) -->
+	<bean id="sqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+		<constructor-arg index="0" ref="sqlSessionFactory" />
+	</bean>
+
+	<!-- Mybatis事物管理 -->
+	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+	<aop:config>
+		<aop:pointcut id="serviceMethod"
+			expression="execution(* com.lxit.crm.service.Impl.*.*(..))" />
+		<aop:advisor advice-ref="txAdvice" pointcut-ref="serviceMethod" />
+	</aop:config>
+
+	<tx:advice id="txAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="*" propagation="REQUIRED" />
+		</tx:attributes>
+	</tx:advice>
+
+	<!-- 拦截器 -->
+	<mvc:interceptors>
+		<mvc:interceptor>
+			<mvc:mapping path="/**" />
+			<mvc:exclude-mapping path="/loginCheck" />
+			<bean class="com.lxit.crm.interceptors.SessionInterceptor"></bean>
+		</mvc:interceptor>
+	</mvc:interceptors>
+
+	<!-- 调度器 -->
+<!-- 	<bean id="simpleJobDetail" -->
+<!-- 		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean"> -->
+		<!-- JOB执行的目标类 -->
+<!-- 		<property name="targetObject" ref="clientController"></property> -->
+		<!-- JOB执行的目标方法 -->
+<!-- 		<property name="targetMethod" value="careList"></property> -->
+<!-- 	</bean> -->
+
+	<!-- Cron触发器 -->
+<!-- 	<bean id="cronTrigger" -->
+<!-- 		class="org.springframework.scheduling.quartz.CronTriggerFactoryBean"> -->
+<!-- 		<property name="name" value="myCronTrig"></property> -->
+<!-- 		<property name="group" value="myGroup"></property> -->
+		<!-- 触发器绑定的JOB -->
+<!-- 		<property name="jobDetail" ref="simpleJobDetail"></property> -->
+<!-- 		<property name="cronExpression" value="0/1 * * * * ?"></property> -->
+<!-- 	</bean> -->
+
+	<!-- 调度器 -->
+<!-- 	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean"> -->
+<!-- 		<property name="triggers"> -->
+<!-- 			<list> -->
+<!-- 				<ref bean="cronTrigger" /> -->
+<!-- 			</list> -->
+<!-- 		</property> -->
+<!-- 		<property name="autoStartup" value="true" /> -->
+<!-- 	</bean> -->
+
+	<!-- 声明javamailsender对象 -->
+	<bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+		<property name="host" value="smtp.qq.com" />
+		<property name="port" value="465" />
+		<property name="username" value="1911822065@qq.com" />
+		<property name="password" value="dloxrtooxldyfcjf" />
+		<property name="javaMailProperties">
+			<props>
+				<prop key="mail.smtp.timeout">5000000</prop>
+				<prop key="mail.smtp.auto">true</prop>
+				<prop key="mail.smtp.socketFactory.port">465</prop>
+				<prop key="mail.smtp.socketFactory.class">javax.net.ssl.SSLSocketFactory</prop>
+			</props>
+		</property>
+	</bean>
+
+	<!-- Memcached配置 -->
+	<bean id="memcachedClientBuilder" class="net.rubyeye.xmemcached.XMemcachedClientBuilder">
+		<constructor-arg>
+			<list>
+				<bean class="java.net.InetSocketAddress">
+					<constructor-arg>
+						<value>192.168.1.100</value>
+					</constructor-arg>
+					<constructor-arg>
+						<value>11211</value>
+					</constructor-arg>
+				</bean>
+				<bean class="java.net.InetSocketAddress">
+					<constructor-arg>
+						<value>192.168.1.115</value>
+					</constructor-arg>
+					<constructor-arg>
+						<value>11211</value>
+					</constructor-arg>
+				</bean>
+				<bean class="java.net.InetSocketAddress">
+					<constructor-arg>
+						<value>192.168.1.130</value>
+					</constructor-arg>
+					<constructor-arg>
+						<value>11211</value>
+					</constructor-arg>
+				</bean>
+			</list>
+		</constructor-arg>
+	</bean>
+	<bean id="memcachedClient" factory-bean="memcachedClientBuilder"
+		factory-method="build" destroy-method="shutdown" />
+
+	<!-- webService -->
+	<import resource="classpath:META-INF/cxf/cxf.xml" />
+	<!-- 第一种配置方式 -->
+	<bean id="dictionaryService" class="com.lxit.crm.service.Impl.DictionaryServiceImpl" />
+	<!-- #表示是从spring容器里面拿的 -->
+	<jaxws:endpoint id="wsServiceBean" implementor="#dictionaryService"
+		address="/get" publish="true" />
+
+	<bean id="clientDevelopService" class="com.lxit.crm.service.Impl.ClientDevelopServiceImpl" />
+	<jaxws:endpoint id="serServiceBean" implementor="#clientDevelopService"
+		address="/getListPage" publish="true" />
+
+	<bean id="indentGoodsService" class="com.lxit.crm.service.Impl.IndentGoodsServiceImpl" />
+	<jaxws:endpoint id="inServiceBean" implementor="#indentGoodsService"
+		address="/indentgoodslistApi" publish="true" />
+</beans>

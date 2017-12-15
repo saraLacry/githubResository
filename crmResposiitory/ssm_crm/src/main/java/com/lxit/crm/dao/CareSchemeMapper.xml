@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="CareScheme">
+	<resultMap type="com.lxit.crm.entity.CareScheme" id="SchemeMap">
+		<id property="id" column="id"/>
+		<result property="remindName" column="remindName"/>
+		<result property="executeScheme" column="executeScheme"/>
+		<result property="executedate" column="executedate"/>
+		<result property="executeResult" column="executeResult"/>
+		<result property="dictionaryvalue" column="dictionaryvalue"/>
+		<result property="remark" column="remark"/>
+	</resultMap>
+	<select id="getList" resultMap="SchemeMap" parameterType="com.lxit.crm.entity.CareScheme">
+		select id,(select
+		dictionaryvalue from dictionary where dectionarycodingId=cs.executeScheme) 
+		as dictionaryvalue,remindName,executedate,executeResult,remark 
+		from carescheme cs
+	</select>
+	<insert id="insertScheme" parameterType="com.lxit.crm.entity.CareScheme">
+		INSERT INTO carescheme(remindName,executeScheme,executedate,executeResult,remark)
+		VALUES(#{remindName},#{executeScheme},#{executedate},#{executeResult},#{remark})
+	</insert>
+	<update id="updateScheme" parameterType="com.lxit.crm.entity.CareScheme">
+		UPDATE carescheme SET remindName=#{remindName},executeScheme=#{executeScheme},
+		executedate=#{executedate},executeResult=#{executeResult},remark=#{remark}
+		where id=#{id}
+	</update>
+	<delete id="deleteScheme" parameterType="com.lxit.crm.entity.CareScheme">
+		DELETE FROM carescheme WHERE id=#{id}
+	</delete>
+	<select id="getListbyId" resultMap="SchemeMap">
+		select id,(select
+		dictionaryvalue from dictionary where dectionarycodingId=cs.executeScheme) 
+		as dictionaryvalue,remindName,executedate,executeResult,remark 
+		from careScheme cs where id=#{id}
+	</select>
+</mapper>

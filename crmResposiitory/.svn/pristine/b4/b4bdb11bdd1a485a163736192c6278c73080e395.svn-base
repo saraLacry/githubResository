@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ClientCare">
+	<resultMap type="com.lxit.crm.entity.ClientCare" id="CareMap">
+		<id property="id" column="id"/>
+		<result property="remindType" column="remindType"/>
+		<result property="remindTime" column="remindTime"/>
+		<result property="remindDay" column="remindDay"/>
+		<result property="remindRate" column="remindRate"/>
+		<result property="remindName" column="remindName"/>
+		<result property="remark" column="remark"/>
+		<result property="dictionaryvalue" column="dictionaryvalue"/>
+		<association property="careScheme" column="schemeId" javaType="com.lxit.crm.entity.CareScheme">
+			<id property="id" column="id"/>
+			<result property="remindName" column="remindName"/>
+			<result property="executeScheme" column="executeScheme"/>
+			<result property="executedate" column="executedate"/>
+			<result property="executeResult" column="executeResult"/>		
+			<result property="remark" column="remark"/>
+		</association>
+	</resultMap>
+	<select id="getList" resultMap="CareMap" parameterType="com.lxit.crm.entity.ClientCare">
+		select id,(select
+		dictionaryvalue from dictionary where dectionarycodingId=cc.remindType) 
+		as remindType,remindTime,remindDay,remindRate,remark,remindName
+		from clientCare cc
+	</select>
+	<insert id="insertCare" parameterType="com.lxit.crm.entity.ClientCare">
+		INSERT INTO clientCare(remindType,remindTime,remindDay,remindRate,remark) 
+		VALUES(#{remindType},#{remindTime},#{remindDay},#{remindRate},#{remark})
+	</insert>
+	<update id="updateCare" parameterType="com.lxit.crm.entity.ClientCare">
+		UPDATE clientCare SET remindType=#{remindType},remindTime=#{remindTime},
+		remindDay=#{remindDay},remindRate=#{remindDay},remark=#{remark}
+		where id=#{id}
+	</update>
+	<delete id="deleteCare" parameterType="com.lxit.crm.entity.ClientCare">
+		DELETE FROM clientcare WHERE id=#{id}
+	</delete>
+	<select id="getListbyId" resultMap="CareMap" parameterType="com.lxit.crm.entity.ClientCare">
+		select id,(select
+		dictionaryvalue from dictionary where dectionarycodingId=cc.remindType) 
+		as dictionaryvalue,remindType,remindTime,remindDay,remindRate,remark,remindName
+		from clientCare cc where cc.id=#{id}
+	</select>
+</mapper>

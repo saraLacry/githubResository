@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="RoleManagerMapper">
+	<!-- 员工Map -->
+	<resultMap type="com.lxit.crm.entity.User" id="roleUser">
+		<id column="userid" property="userId" />
+		<result column="userNumber" property="userNumber" />
+		<result column="userName" property="userName" />
+		<result column="createTime" property="createTime" />
+		<result column="loginId" property="loginId" />
+		<result column="phone" property="phone" />
+		<result column="remark" property="remark" />
+		<result column="passWord" property="passWord" />
+		<result column="count" property="count" />
+		<result column="lasttime" property="lastTime" />
+		<result column="outstandinggrade" property="outstandinggrade" />
+		<association property="dept" column="deptId"
+			select="DeptMapper.getDeptSpan" />
+		<association property="state" column="state"
+			select="Dictionary.getDictionary" />
+		<association property="sex" column="sex"
+			select="Dictionary.getDictionary" />
+		<association property="role" column="roleId" select="Role.getRole" />
+	</resultMap>
+
+	<!-- 角色查询 -->
+	<select id="roleSelect" resultMap="roleUser">
+		select
+		r1.*,s1.loginId,s1.deptName,s1.lasttime,s1.userName,s1.remark,s1.userId
+		from
+		role r1,
+		(select u1.*,d1.deptName from user u1,dept d1 where
+		u1.deptId
+		= d1.deptId) s1
+		where r1.roleId = s1.roleid
+	</select>
+
+	<!-- 部门Map -->
+	<resultMap type="com.lxit.crm.entity.Dept" id="roleDeptMap">
+		<id column="deptId" property="deptId" />
+		<result column="deptNumber" property="deptNumber" />
+		<result column="deptName" property="deptName" />
+		<result column="deptBeneluxName" property="deptBeneluxName" />
+		<result column="deptSynopsis" property="deptSynopsis" />
+		<result column="deptRemark" property="deptRemark" />
+		<result column="lasttime" property="lasttime" />
+		<result column="lastuser" property="lastuser" />
+	</resultMap>
+
+	<parameterMap type="com.lxit.crm.entity.Role" id="roleAddMap">
+		<parameter property="roleName" />
+	</parameterMap>
+
+	<!-- 插入角色 -->
+	<select id="roleAdd" parameterMap="roleAddMap" resultType="com.lxit.crm.entity.Role">
+		insert into
+		role(roleName)
+		VALUES(#{roleName})
+	</select>
+
+	<parameterMap type="com.lxit.crm.entity.Role" id="roleAddSelectMap">
+		<parameter property="roleName" />
+	</parameterMap>
+
+	<!-- 插入角色前的查询 -->
+	<select id="roleAddSelect" parameterMap="roleAddSelectMap"
+		resultType="com.lxit.crm.entity.Role">
+		select roleId,roleName
+		from role where roleName =
+		#{roleName}
+	</select>
+
+	<!-- 修改 -->
+	<parameterMap type="com.lxit.crm.entity.User" id="roleUpdateMap">
+		<parameter property="lastTime" />
+		<parameter property="remark" />
+	</parameterMap>
+
+	<!-- 删除角色Map -->
+	<resultMap type="com.lxit.crm.entity.Role" id="RoleDelMap">
+		<id column="roleId" property="roleId" />
+		<result column="roleName" property="roleName" />
+	</resultMap>
+
+	<!-- 删除角色 -->
+	<select id="roleDel" resultMap="RoleDelMap">
+		DELETE from user u1 where
+		u1.userId = #{roleId}
+	</select>
+</mapper>

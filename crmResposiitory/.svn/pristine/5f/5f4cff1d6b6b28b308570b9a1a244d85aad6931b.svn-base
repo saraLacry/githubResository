@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Indent">
+	<resultMap type="com.lxit.crm.entity.Indent" id="IndentMap">
+		<id property="indentid" column="indentid" />
+		<result property="indentNumber" column="indentNumber" />
+		<result property="clientresourceName" column="clientresourceName" />
+		<result property="userName" column="userName" />
+		<result property="paymentId" column="paymentid" />
+		<result property="indentdelivery" column="indentdelivery" />
+		<result property="indentTime" column="indentTime" />
+		<result property="indentState" column="indentState" />
+		<result property="goodsIndentallmoney" column="goodsIndentallmoney" />
+		
+		<association property="clientresource" javaType="com.lxit.crm.entity.ClientResource">
+			<id column="id" property="id" />
+			<result column="clientName" property="clientName" />
+		</association>
+		<association property="user" javaType="com.lxit.crm.entity.User">
+			<id column="userd" property="userId" />
+			<result column="userName" property="userName" />
+		</association>
+	</resultMap>
+
+	<select id="getListIndentById" resultMap="IndentMap"
+		parameterType="int">
+
+		select indentid, (select userName from user where userId
+		= i.userId) as userName,paymentId,indentdelivery,indentNumber
+		,(select
+		clientName from cilentresource
+		where id
+		=i.clientresourceid )
+		as
+		clientresourceName,indentTime,(select
+		dictionaryvalue from
+		dictionary
+		where dectionarycodingId =
+		i.indentstate ) as indentState,(select
+		SUM(indentgoodsmoney*indentgoodsnumber) from indentgoods where
+		indentnumber = i.indentnumber ) as goodsIndentallmoney from
+		indent i where
+		i.indentid= #{0};
+	</select>
+	<select id="getListIndent" resultMap="IndentMap" parameterType="Object[]">
+
+		select indentid, indentNumber
+		,(select clientName from cilentresource
+		where id
+		=i.clientresourceid )
+		as clientresourceName,indentTime,(select
+		dictionaryvalue from
+		dictionary where dectionarycodingId =
+		i.indentstate ) as indentState,(select
+		SUM(indentgoodsmoney*indentgoodsnumber) from indentgoods where
+		indentnumber = i.indentnumber ) as goodsIndentallmoney from
+		indent i where 1=1 
+		 <if test="array[0] =='订单号' and array[1] != '' and array[1] !=null">
+			 and indentNumber = #{array[1]} 
+		</if>
+		<if test="array[0] =='收货人' and array[1] != '' and array[1] !=null">
+			 and (select clientName from cilentresource where id =i.clientresourceid ) LIKE concat('%',#{array[1]},'%') 
+		</if>
+		<if test="array[2]!='' and array[2]!=null and array[3]!=''and array[3]!=null">
+			 and indentTime >= #{array[2]} and #{array[3]} >= indentTime  
+		</if>
+		<if test="array[4]!=null and array[4]!=''">
+			 and (select dictionaryvalue from dictionary where dectionarycodingId = i.indentstate ) = #{array[4]} 
+		</if> 
+		  limit #{array[5]},#{array[6]}  
+	</select>
+	<select id="getListIndentcount" resultType="int" parameterType="Object[]">
+		select count(1) from
+		indent i where 1=1 
+		 <if test="array[0] =='订单号' and array[1] != '' and array[1] !=null">
+			 and indentNumber = #{array[1]} 
+		</if>
+		<if test="array[0] =='收货人' and array[1] != '' and array[1] !=null">
+			 and (select clientName from cilentresource where id =i.clientresourceid ) LIKE concat('%',#{array[1]},'%') 
+		</if>
+		<if test="array[2]!='' and array[2]!=null and array[3]!=''and array[3]!=null">
+			 and indentTime >= #{array[2]} and #{array[3]} >= indentTime  
+		</if>
+		<if test="array[4]!=null and array[4]!=''">
+			 and (select dictionaryvalue from dictionary where dectionarycodingId = i.indentstate ) = #{array[4]} 
+		</if> 
+
+	</select>
+
+	<insert id="addIndent" parameterType="com.lxit.crm.entity.Indent">
+		INSERT INTO indent
+		(indentnumber,clientresourceid,userId,paymentid,indentdelivery,indenttime,indentstate)
+		VALUES
+		(#{indentNumber},#{clientresource.id},#{user.userId},#{paymentId},#{indentdelivery},#{indentTime},#{indentState});
+	</insert>
+	
+</mapper>

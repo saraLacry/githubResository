@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Ratio">
+	<select id="getList" parameterType="java.util.Map" resultType="com.lxit.crm.entity.Ratio">
+		select r.id as id,r.ratioNumber as ratioNumber,u.userName as userName,r.rank as rank,r.lastDate as lastDate,u1.userName as lastUserName,r.remark as text, d.deptName as deptName from ratio r,user u,dept d,user u1 where r.userId = u.userId and u.deptId = d.deptId and r.lastUserId = u1.userId
+		and u.leaduserId = #{userId} 
+		<if test="userName!=null">
+			and u.userName like CONCAT('%',#{userName},'%')
+		</if>  
+		 limit #{pageIndex} ,#{pageSize}
+	</select>
+	
+	<select id="getCount" parameterType="java.util.Map" resultType="int">
+		select count(1) from ratio r,user u,dept d,user u1 where r.userId = u.userId and u.deptId = d.deptId and r.lastUserId = u1.userId
+		and u.leaduserId = #{userId} 
+		<if test="userName!=null">
+			and u.userName like CONCAT('%',#{userName},'%')
+		</if>
+	</select>
+	
+	<select id="getRatio" parameterType="int" resultType="com.lxit.crm.entity.Ratio">
+		select r.id as id,r.ratioNumber as ratioNumber,u.userName as userName,r.rank as rank,r.lastDate as lastDate,u1.userName as lastUserName,r.remark as text, d.deptName as deptName from ratio r,user u,dept d,user u1 where r.userId = u.userId and u.deptId = d.deptId and r.lastUserId = u1.userId
+		and r.id = #{id}
+	</select>
+	
+	<insert id="insert" parameterType="com.lxit.crm.entity.Ratio">
+		insert into ratio(ratioNumber,userId,rank,lastDate,lastUserId,remark)values(#{ratioNumber},#{userName},#{rank},#{lastDate},#{lastUserName},#{text})
+	</insert>
+	
+	<update id="update" parameterType="com.lxit.crm.entity.Ratio">
+		update ratio 
+		<set>
+			<if test="ratioNumber!=null">
+				ratioNumber=#{ratioNumber},
+			</if>
+			<if test="userName!=null">
+				userId=#{userName},
+			</if>
+			<if test="rank!=null">
+				rank=#{rank},
+			</if>
+			<if test="lastDate!=null">
+				lastDate=#{lastDate},
+			</if>
+			<if test="lastUserName!=null">
+				lastUserId=#{lastUserName},
+			</if>
+			<if test="text!=null">
+				remark=#{text}
+			</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="delete" parameterType="int">
+		delete from ratio where id = #{id}
+	</delete>
+</mapper>

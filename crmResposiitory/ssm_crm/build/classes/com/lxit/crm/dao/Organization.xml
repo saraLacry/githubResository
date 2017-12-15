@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="organizationMapper">
+	<resultMap type="com.lxit.crm.entity.Dept" id="organctionDeptMap">
+		<id column="deptId" property="deptId" />
+		<result column="deptNumber" property="deptNumber" />
+		<result column="deptName" property="deptName" />
+		<result column="deptBeneluxName" property="deptBeneluxName" />
+		<result column="deptSynopsis" property="deptSynopsis" />
+		<result column="deptRemark" property="deptRemark" />
+		<result column="lasttime" property="lasttime" />
+		<result column="lastuser" property="lastuser" />
+		<result column="deptIsId" property="superiorDept" />
+	</resultMap>
+
+	<!-- 查询所有部门 -->
+	<select id="organctionSelect" resultMap="organctionDeptMap">
+		select
+		d1.deptid,d1.deptnumber,d1.deptName,d1.deptBeneluxName,d1.deptSynopsis,d1.deptRemark,d1.deptIsId,d1.lasttime,d1.lastuser
+		from dept d1
+	</select>
+
+	<!-- 查询部门下的所有员工 -->
+	<select id="organctionSelectAssign" parameterType="int"
+		resultType="com.lxit.crm.entity.User">
+		select
+		userId,userName from user where leaduserId = #{id}
+	</select>
+
+	<!-- 查询部门 -->
+	<select id="kxsjSelectAllSpan" resultType="com.lxit.crm.entity.Dept">
+		select
+		deptId,deptName
+		from dept
+	</select>
+
+	<parameterMap type="com.lxit.crm.entity.Dept" id="deptcongegdMap">
+		<parameter property="deptId" />
+	</parameterMap>
+
+	<!-- 查询所属部门 -->
+	<select id="deptidlxosaids" resultMap="organctionDeptMap">
+		select deptIsId from
+		dept
+		where deptId
+		= #{deptId}
+	</select>
+
+	<parameterMap type="com.lxit.crm.entity.Dept" id="AdddeptcongegdMap">
+		<parameter property="deptNumber" />
+		<parameter property="deptName" />
+		<parameter property="deptBeneluxName" />
+		<parameter property="superiorDept" />
+		<parameter property="deptSynopsis" />
+		<parameter property="deptRemark" />
+		<parameter property="lasttime" />
+	</parameterMap>
+
+	<!-- 增加部门 -->
+	<select id="deptAddAll" parameterMap="AdddeptcongegdMap"
+		resultType="com.lxit.crm.entity.Dept">
+		insert into
+		dept(deptNumber,deptName,deptBeneluxName,deptIsId,deptSynopsis,deptRemark,lasttime)
+		values(#{deptNumber},#{deptName},#{deptBeneluxName},#{superiorDept},#{deptSynopsis},#{deptRemark},#{lasttime})
+	</select>
+
+	<parameterMap type="com.lxit.crm.entity.Dept" id="UpdatedeptcongegdMap">
+		<parameter property="deptId" />
+		<parameter property="deptNumber" />
+		<parameter property="deptName" />
+		<parameter property="deptBeneluxName" />
+		<parameter property="superiorDept" />
+		<parameter property="deptSynopsis" />
+		<parameter property="deptRemark" />
+		<parameter property="lasttime" />
+	</parameterMap>
+
+	<!-- 修改部门 -->
+	<select id="deptUpdateAll" parameterMap="UpdatedeptcongegdMap"
+		resultType="com.lxit.crm.entity.Dept">
+		update dept SET deptNumber
+		=#{deptNumber} ,deptName
+		=#{deptName} ,deptBeneluxName
+		=#{deptBeneluxName} ,deptIsId
+		=#{superiorDept} ,deptSynopsis
+		=#{deptSynopsis} ,deptRemark
+		=#{deptRemark} ,lasttime =#{lasttime}
+		where deptId = #{deptId}
+	</select>
+
+	<parameterMap type="com.lxit.crm.entity.Dept" id="DeldeptcongegdMap">
+		<parameter property="deptId" />
+	</parameterMap>
+
+	<!-- 删除部门 -->
+	<select id="deptDelAll" parameterMap="UpdatedeptcongegdMap"
+		resultType="com.lxit.crm.entity.Dept">
+		DELETE from dept where deptId = #{deptId}
+	</select>
+	
+	<select id="getLeaduser" parameterType="int" resultType="com.lxit.crm.entity.User">
+		select userId,userName from user where leaduserId = #{id}
+	</select>
+	
+</mapper>

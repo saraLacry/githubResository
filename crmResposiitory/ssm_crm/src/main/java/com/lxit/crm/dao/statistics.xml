@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 统计 -->
+
+
+<mapper namespace="statistics">
+	<!-- 流失统计 -->
+	<select id="clientelerunoff" resultType="com.lxit.crm.entity.ClienteleRunOff">
+		SELECT COUNT(1)
+		AS clienteleRunOffCount,
+		CONCAT(
+		YEAR(enteringTime),'-',MONTH(enteringTime))AS clienteleRunOffMonth
+		FROM cilentresource where clientState = 34
+		GROUP BY CONCAT(
+		YEAR(enteringTime),'-',MONTH(enteringTime))
+	</select>
+
+	<!-- 流失统计 按日期查找 -->
+	<select id="clientelerunoffcountone" resultType="com.lxit.crm.entity.ClienteleRunOff">
+		SELECT COUNT(1) AS clienteleRunOffCount, CONCAT( YEAR(enteringTime),'-',MONTH(enteringTime))  
+FROM  cilentresource  where clientState = 34 AND CONCAT( YEAR(enteringTime),'-',MONTH(enteringTime))=#{clienteleRunOffMonth}    GROUP BY  CONCAT( YEAR(enteringTime),'-',MONTH(enteringTime)) 
+		
+	</select>
+	<!-- 流失统计 总条数 -->
+	<select id="clientelerunoffcount" resultType="com.lxit.crm.entity.ClienteleRunOff">
+
+	</select>
+	<!-- 构建统计 -->
+	<select id="clienteleformation" resultType="com.lxit.crm.entity.ClienteleFormation">
+
+
+	</select>
+	<!-- 构建统计 总条数 -->
+	<select id="clienteleformationcount" resultType="com.lxit.crm.entity.ClienteleFormation">
+
+
+	</select>
+	<!-- 服务统计 -->
+	<select id="clienteleserver" resultType="com.lxit.crm.entity.ClienteleServer">
+
+	</select>
+
+	<!-- 服务统计 总条数 -->
+	<select id="clienteleservercount" resultType="com.lxit.crm.entity.ClienteleServer">
+
+	</select>
+	<!-- 贡献统计 -->
+	<select id="clientelecontribution" resultType="com.lxit.crm.entity.ClienteleContribution">
+
+	</select>
+
+	<!-- 贡献统计 总条数 -->
+	<select id="clientelecontributioncount" resultType="com.lxit.crm.entity.ClienteleContribution">
+
+	</select>
+</mapper>

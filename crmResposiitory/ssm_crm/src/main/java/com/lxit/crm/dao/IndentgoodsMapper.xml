@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Indentgoods">
+	<resultMap type="com.lxit.crm.entity.Indentgoods" id="IndentgoodsMap">
+		<id property="igid" column="igid" />
+		<result property="indentGoodsMoney" column="indentgoodsmoney" />
+		<result property="indentGoodsNumber" column="indentgoodsnumber" />
+		<association property="goods" javaType="com.lxit.crm.entity.Goods">
+			<id column="goodsid" property="goodsId" />
+			<result column="goodsname" property="goodsName" />
+			<result column="goodsmodel" property="goodsModel" />
+			<result column="goodsmoney" property="goodsMoney" />
+			<result column="goodsreserve" property="goodsReserve" />
+		</association>
+		<association property="indent" javaType="com.lxit.crm.entity.Indent">
+			<id column="indentid" property="IndentId" />
+			<result column="indentnumber" property="indentNumber" />
+		</association>
+	</resultMap>
+
+	<select id="getListIndentGoodsallmoney" resultMap="IndentgoodsMap"
+		parameterType="int">
+		select indentgoodsmoney,indentgoodsnumber from
+		indentgoods where indentnumber = #{0};
+	</select>
+	<select id="getmoney" resultMap="IndentgoodsMap"
+		parameterType="int">
+		select SUM(indentgoodsmoney*indentgoodsnumber) as indentGoodsMoney from indentgoods ig where
+		ig.indentnumber =
+		(select indentnumber from indent where clientresourceid = #{0})
+	</select>
+	
+	<insert id="addIndentgoods" parameterType="com.lxit.crm.entity.Indentgoods">
+		INSERT INTO indentgoods
+		(goodsid,indentnumber,indentgoodsmoney,indentgoodsnumber)
+		VALUES
+		(#{goods.goodsId},#{indent.indentNumber},#{indentGoodsMoney},#{indentGoodsNumber});
+	</insert>
+	
+	<select id="getindentGoodsxixi" resultMap="IndentgoodsMap">
+		select indentgoodsmoney,indentgoodsnumber,(select goodsname from goods where goodsid = i.goodsid ) as goodsname from indentgoods  i where indentnumber = #{0};
+	</select>
+</mapper>

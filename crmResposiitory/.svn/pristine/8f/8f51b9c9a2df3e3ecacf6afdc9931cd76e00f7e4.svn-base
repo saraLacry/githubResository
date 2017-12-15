@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="CommonIssueMapper">
+
+	<select id="insertCommonIssue">
+		insert into
+		commonissue(issueName,issueType,issueAnswer,remark,foundId,lastDate,lastUpdateDate)
+		value(#{issueName},#{issueType},#{issueAnswer},#{remark},#{foundId},#{lastDate},#{lastUpdateDate})
+	</select>
+
+	<select id="CommonInssquery" resultType="com.lxit.crm.entity.CommonIssue">
+		select
+		CommonIssueId, IssueName ,IssueType
+		,IssueAnswer,Remark,FoundId,lastDate,lastUpdateDate
+		FROM
+		commonissue
+		where 1=1
+		<if test="IssueType!=null">
+			and IssueType LIKE #{IssueType},
+		</if>
+		LIMIT #{pageSize},#{pageIndex}
+	</select>
+
+	<!-- 获取总条数 -->
+	<select id="CommonInssqueryCount" resultType="java.lang.Integer">
+		select COUNT(1)
+		from commonissue
+	</select>
+
+<select id="CommonInssqueryqyqy" resultType="com.lxit.crm.entity.CommonIssue">
+		select
+		*
+		FROM
+		commonissue
+		where CommonIssueId=#{CommonIssueId}
+	</select>
+
+	<update id="CommonIssueupdate">
+		update
+		commonissue
+		set
+		IssueAnswer=#{IssueAnswer},
+		Remark=#{Remark}
+		WHERE
+		CommonIssueId=#{CommonIssueId}
+	</update>
+	
+	<delete id="CommonIssuedelete">
+	   delete from commonissue
+		where CommonIssueId= #{CommonIssueId}
+	</delete>
+</mapper>

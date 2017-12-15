@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Forecast">
+	<select id="getList" parameterType="java.util.Map"
+		resultType="com.lxit.crm.entity.Forecast">
+		select f.id as id,f.title as title,f.date as date , dc.dictionaryvalue
+		as type , u.userName as userName ,d.deptName as deptName , f.userCount
+		as userCount , f.clientCount as clientCount,f.startDate as startDate ,
+		u1.userName as handleUserName,f.text as text , f.goalMoney as
+		goalMoney from forecast f LEFT JOIN dictionary dc on f.type =
+		dc.dectionarycodingId LEFT JOIN user u on f.userId = u.userId LEFT
+		JOIN dept d on f.deptId = d.deptId LEFT JOIN user u1 on f.handleUserId
+		= u1.userId where
+		<choose>
+			<when test="fid!=null">
+  				f.id = #{fid}
+			</when>
+			<otherwise>
+				<choose>
+					<when test="id!=null">
+						(f.type = 69 or f.type = 70) and f.deptId = #{id} and
+						u.deptId = #{id}
+					</when>
+					<otherwise>
+						(f.type = 71 or f.type = 70)
+					</otherwise>
+				</choose>
+				<if test="date!=null">
+					and CONCAT(YEAR(#{date}),',',MONTH(#{date})) =
+					CONCAT(YEAR(f.date),',',MONTH(f.date))
+				</if>
+				limit #{pageIndex},#{pageSize}
+			</otherwise>
+		</choose>
+
+	</select>
+
+	<select id="getCount" parameterType="java.util.Map" resultType="int">
+		select count(1) from forecast f LEFT JOIN dictionary dc on f.type =
+		dc.dectionarycodingId LEFT JOIN user u on f.userId = u.userId LEFT
+		JOIN dept d on f.deptId = d.deptId LEFT JOIN user u1 on f.handleUserId
+		= u1.userId where
+		<choose>
+			<when test="id!=null">
+				(f.type = 69 or f.type = 70) and f.deptId = #{id} and
+				u.deptId = #{id}
+			</when>
+			<otherwise>
+				(f.type = 71 or f.type = 70)
+			</otherwise>
+		</choose>
+		<if test="date!=null">
+			and CONCAT(YEAR(#{date}),',',MONTH(#{date})) =
+			CONCAT(YEAR(f.date),',',MONTH(f.date))
+		</if>
+	</select>
+
+	<insert id="insert" parameterType="com.lxit.crm.entity.Forecast">
+		insert into
+		forecast(title,date,type,userId,deptId,userCount,clientCount,startDate,handleUserId,text,goalMoney)
+		values(#{title},#{type},#{userName},#{deptName},#{userCount},#{clientCount},#{startDate},#{handleUserName},#{text},#{goalMoney})
+	</insert>
+</mapper>

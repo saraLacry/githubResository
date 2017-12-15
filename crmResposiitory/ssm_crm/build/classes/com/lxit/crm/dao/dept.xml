@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Dept">
+	<resultMap type="com.lxit.crm.entity.Dept" id="dept">
+		<id column="ddeptId" property="deptId" />
+		<result column="ddeptNumber" property="deptNumber" />
+		<result column="ddeptName" property="deptName" />
+		<result column="ddeptBeneluxName" property="deptBeneluxName" />
+		<result column="ddeptSynopsis" property="deptSynopsis" />
+		<result column="ddeptRemark" property="deptRemark" />
+		<result column="dlasttime" property="lasttime" />
+		<result column="uusername" property="lastuser" />
+		<association property="dept" javaType="com.lxit.crm.entity.Dept">
+			<id column="pdeptId" property="deptId" />
+			<result column="pdeptNumber" property="deptNumber" />
+			<result column="pdeptName" property="deptName" />
+			<result column="pdeptBeneluxName" property="deptBeneluxName" />
+			<result column="pdeptSynopsis" property="deptSynopsis" />
+			<result column="pdeptRemark" property="deptRemark" />
+		</association>
+	</resultMap>
+	<select id="getDept" parameterType="int" resultMap="dept">
+		select
+		u.userName as uusername,d.deptId as ddeptId,d.deptNumber as ddeptNumber,d.deptName as ddeptName,d.deptBeneluxName as ddeptBeneluxName,d.deptSynopsis as ddeptSynopsis,d.deptRemark as ddeptRemark,d.deptIsId as ddeptIsId,d.lasttime as dlasttime,d.lastuser as dlastuser,
+		p.deptId as pdeptId,p.deptNumber as pdeptNumber,p.deptName as pdeptName,p.deptBeneluxName as pdeptBeneluxName,p.deptSynopsis as pdeptSynopsis,p.deptRemark as pdeptRemark
+		from dept d LEFT JOIN dept p on d.deptId = p.deptIsId LEFT JOIN
+		`user` u on u.userId = d.lastuser where d.deptId=#{id}
+	</select>
+	
+	
+	<!-- <select id="getDeptSpan" parameterType="int" resultMap="dept">
+		select d1.deptid from dept d1 LEFT JOIN user u1 on d1.deptid = u1.deptid
+	</select> -->
+</mapper>

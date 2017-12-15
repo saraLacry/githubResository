@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="springmvc" default="deploy" basedir=".">
+	<property name="name" value="amigo"/>
+	<property name="build" value="E:\apache-tomcat-7.0.53\webapps"></property>
+	<property name="rbuild" value="../build"></property>
+	<property name="tc" value="E:\apache-tomcat-7.0.53"></property>
+	 
+	<target name="javac" description="编译" depends="create_dir">
+		<javac srcdir="../src" destdir="${rbuild}/classes"
+			includeantruntime="false">
+			<classpath>
+				<fileset dir="${basedir}/WEB-INF/lib">
+					<include name="**/*.jar"/>
+				</fileset>
+			</classpath>
+		</javac>
+		<copy todir="${rbuild}/classes">
+			<fileset dir="../src">
+				<include name="**/*.xml"/>
+			</fileset>
+		</copy>
+	</target>
+	<target name="create_dir" description="创建文件夹" depends="delete_dir">
+		<echo message="创建开始"/>
+		<mkdir dir="${rbuild}"/>
+		<mkdir dir="${rbuild}/classes"/>
+		<echo message="创建结束"/>
+	</target>
+	<target name="delete_dir" description="删除文件夹">
+			<echo message="删除开始"/>
+			<delete dir="${rbuild}"/>
+			<delete dir="${rbuild}/classes"/>
+			<echo message="删除结束"/>
+	</target>
+	
+	
+	<target name="jar" description="打jar包">
+			<jar destfile="springmvc.jar" basedir="${basedir}"></jar>
+	</target>
+	<target name="war" description="打war包" depends="javac">
+	<war destfile="${basedir}/ssh_crm.war" webxml="${basedir}/WEB-INF/web.xml">
+			<fileset dir="${basedir}">
+				<exclude name="build.xml" />
+				<exclude name="**/build.xml" />
+			</fileset>
+			<lib dir="${basedir}/WEB-INF/lib" />
+			<classes dir="${rbuild}/classes"/>
+		</war>
+	</target>
+	
+	<target name="complie" depends="war">
+		<move file="ssh_crm.war" tofile="${tc}/webapps/ssh_crm.war"></move>
+	</target>
+	<target name="deploy"  depends="complie">
+		<echo message="关闭tomcat"/>
+			<exec executable="${tc}/bin/shutdown.bat">
+					<env key="CATALINA_HOME" path="${tc}"/>
+			</exec>
+		<echo message="关闭tomcat成功"/>
+		<echo message="启动tomcat"/>
+			<exec executable="${tc}/bin/startup.bat" >
+				<env key="CATALINA_HOME" path="${tc}"/>	
+			</exec> 
+		<echo message="启动tomcat成功"/>
+	</target>
+</project> 

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Role">
+	<resultMap type="com.lxit.crm.entity.Role" id="role">
+		<id column="r.roleId" property="roleId" />
+		<result column="r.roleName" property="roleName" />
+		<collection property="nav" ofType="com.lxit.crm.entity.Nav"
+			column="roleId" select="Role.getNav">
+		</collection>
+	</resultMap>
+	<resultMap type="com.lxit.crm.entity.Nav" id="nav">
+		<id column="n.id" property="id" />
+		<result column="n.text" property="text" />
+		<result column="n.iconCls" property="iconCls" />
+		<result column="n.url" property="url" />
+		<result column="n.tid" property="tid" />
+		<result column="n.state" property="state" />
+	</resultMap>
+	<select id="getRole" parameterType="int" resultMap="role">
+		select r.roleId,r.roleName from role r where r.roleid = #{id}
+	</select>
+	
+	<select id="getNav" resultMap="nav" parameterType="int">
+		select n.id,n.text,n.iconCls,n.url,n.tid,n.state from role_nav rn,nav n
+		where rn.roleid=#{id} and rn.navid=n.id
+	</select>
+</mapper>

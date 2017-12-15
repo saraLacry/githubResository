@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="CilentResource">
+	<resultMap type="com.lxit.crm.entity.ClientResource" id="ResourceMap">
+		<id property="id" column="id" />
+		<result property="clientCode" column="clientCode" />
+		<result property="clientName" column="clientName" />
+		<result property="clientSex" column="clientSex" />
+		<result property="clientBrithday" column="clientBrithday" />
+		<result property="clientType" column="clientType" />
+		<result property="clientState" column="clientState" />
+		<result property="clientPhone" column="clientPhone" />
+		<result property="workPhone" column="workPhone" />
+		<result property="email" column="email" />
+		<result property="familyPhone" column="familyPhone" />
+		<result property="adress" column="adress" />
+		<result property="remark" column="remark" />
+		<result property="shareStatus" column="shareStatus" />
+		<result property="enteringTime" column="enteringTime" />
+		<result property="userId" column="userId" />
+		<result property="num" column="num" />
+		<result property="money" column="money" />
+		<result property="userName" column="userName" />
+		<result property="dictionaryvalue" column="dictionaryvalue" />
+		<result property="dictionaryvalue2" column="dictionaryvalue2" />
+		<result property="dictionaryvalue3" column="dictionaryvalue3" />
+		<result property="quality" column="quality" />
+		<result property="price" column="price" />
+		<result property="serve" column="serve" />
+		<result property="sum" column="sum" />
+		<result property="Feedback" column="Feedback" />
+		<result property="surveyTime" column="surveyTime" />
+		<result property="indentid" column="indentid" />
+		<result property="csid" column="csid" />
+		<association property="user" column="userId"
+			javaType="com.lxit.crm.entity.User">
+			<id property="userId" column="userId" />
+			<result property="userNumber" column="userNumber" />
+			<result property="userName" column="userName" />
+			<result property="createTime" column="enteringTime" />
+			<result property="loginId" column="loginId" />
+			<result property="phone" column="phone" />
+			<result property="remark" column="remark" />
+			<result property="passWord" column="passWord" />
+			<result property="count" column="count" />
+			<result property="lasttime" column="lasttime" />
+			<result property="lastuserName" column="lastuserName" />
+			<result property="leaduserId" column="leaduserId" />
+			<result property="outstandinggrade" column="outstandinggrade" />
+		</association>
+		<association property="state" column="state"
+			select="Dictionary.getDictionary" />
+		<association property="sex" column="sex"
+			select="Dictionary.getDictionary" />
+	</resultMap>
+	<select id="getList" resultMap="ResourceMap">
+		select * from cilentResource
+	</select>
+
+	<select id="getResourceById" resultMap="ResourceMap">
+		select * from
+		cilentResource where id=#{id}
+	</select>
+	<select id="getindentResourceById" resultMap="ResourceMap"
+		parameterType="int">
+		select id,
+		clientName,clientCode,enteringTime,clientBrithday,remark,clientSex,adress,(select
+		dictionaryvalue from dictionary where dectionarycodingId =
+		ct.clientType) as dictionaryvalue,(select
+		dictionaryvalue from dictionary where dectionarycodingId =
+		ct.clientState)as clientState,clientState,workPhone,email,(select
+		count(1) from
+		indent where
+		clientresourceid=ct.id) as num
+		,(select
+		SUM(indentgoodsmoney*indentgoodsnumber)
+		from indentgoods where indentnumber in(select
+		indentnumber
+		from indent where
+		clientresourceid =ct.id ))as
+		money,(select
+		username from user where userid= ct.userId) as userName
+		from
+		cilentresource ct where id=#{id}
+	</select>
+
+	<select id="getResourcePage" parameterType="Object[]" resultMap="ResourceMap">
+		select id,cr.clientName,cr.clientSex,(select
+		dictionaryvalue from dictionary where dectionarycodingId =
+		cr.clientType) as dictionaryvalue,cr.clientState,cr.enteringTime,
+		(select dictionaryvalue from dictionary where dectionarycodingId =
+		cr.shareStatus) as dictionaryvalue2,
+		(select dictionaryvalue from dictionary where dectionarycodingId =
+		cr.clientState) as dictionaryvalue3,u.userName from cilentResource cr 
+		inner join user u on u.userId=cr.userId where 1=1 
+		<if test="array[0]=='客户姓名' and array[1] != '' and array[1] !=null">
+			 and cr.clientName LIKE concat('%',#{array[1]},'%')
+		</if>
+		<if test="array[0]=='联系电话' and array[1] != '' and array[1] !=null">
+		 	and cr.clientPhone LIKE concat('%',#{array[1]},'%')  or cr.workPhone LIKE concat('%',#{array[1]},'%') or cr.familyPhone LIKE concat('%',#{array[1]},'%');
+		</if>
+		<if test="array[2]!='' and array[2]!=null">
+			and cr.shareStatus=#{array[2]}
+		</if>
+			order by cr.id limit #{array[3]},#{array[4]}
+	</select>
+	<select id="getindentResourceById2" resultMap="ResourceMap">
+			select ct.id,
+				clientName,clientCode,enteringTime,clientBrithday,remark,clientSex,adress,(select
+				dictionaryvalue from dictionary where dectionarycodingId =
+				ct.clientType) as dictionaryvalue,(select
+				dictionaryvalue from dictionary where dectionarycodingId =
+				ct.clientState)as clientState,clientState,workPhone,email,(select
+				count(1) from
+				indent where
+				clientresourceid=ct.id) as num
+				,(select
+				SUM(indentgoodsmoney*indentgoodsnumber)
+				from indentgoods where indentnumber in(select
+				indentnumber
+				from indent where
+				clientresourceid =ct.id ))as
+				money,(select
+				username from user where userid= ct.userId) as userName,
+					cs.id as csid,
+					cs.qualitySatisfied as quality,
+					cs.priceSatisfied as price,
+					cs.serveSatisfied as serve,
+					cs.sumSatisfied as sum,
+					cs.clientFeedback as Feedback,
+					cs.surveyTime as surveyTime,
+					cs.creditGrade as grade,
+					i.indentid as indentid
+				from
+				cilentresource ct,clientSatisfied cs 
+		RIGHT JOIN indent i ON cs.indentid=i.indentid
+		where ct.id=#{id} AND i.clientresourceid=ct.id
+	</select>
+	
+	<select id="getclientindent" resultMap="ResourceMap"  parameterType="Object[]" >
+		select id,
+		clientName,clientCode,clientSex,adress,(select
+		dictionaryvalue from dictionary where dectionarycodingId =
+		ct.clientType) as dictionaryvalue,(select
+		dictionaryvalue from dictionary where dectionarycodingId =
+		ct.clientState)as clientState,clientState,workPhone,email,(select
+		count(1) from
+		indent where
+		clientresourceid=ct.id) as num
+		,(select
+		SUM(indentgoodsmoney*indentgoodsnumber)
+		from indentgoods where indentnumber in(select
+		indentnumber
+		from indent where
+		clientresourceid =ct.id ))as
+		money,(select
+		username from user where userid= ct.userId) as userName
+		from
+		cilentresource ct where 1=1 and ct.userId >= #{array[4]}
+		<if test="array[0]=='客户姓名' and array[1] != ''">
+			 and ct.clientName LIKE concat('%',#{array[1]},'%') 
+		</if>
+		<if test="array[0]=='联系电话' and array[1] != ''">
+		 and clientPhone = #{array[1]}  or workPhone = #{array[1]} or familyPhone = #{array[1]};
+		</if>
+		limit #{array[2]},#{array[3]} 
+	</select>
+	
+	<select id="getclientindent2" resultMap="ResourceMap"  parameterType="Object[]" >
+		select ct.id,
+		clientName,clientCode,clientSex,adress,(select
+		dictionaryvalue from dictionary where dectionarycodingId =
+		ct.clientType) as dictionaryvalue,(select
+		dictionaryvalue from dictionary where dectionarycodingId =
+		ct.clientState)as clientState,clientState,workPhone,email,(select
+		count(1) from
+		indent where
+		clientresourceid=ct.id) as num
+		,(select
+		SUM(indentgoodsmoney*indentgoodsnumber)
+		from indentgoods where indentnumber in(select
+		indentnumber
+		from indent where
+		clientresourceid =ct.id ))as
+		money,(select
+		username from user where userid= ct.userId) as userName,
+			cs.id as csid,
+			cs.qualitySatisfied as quality,
+			cs.priceSatisfied as price,
+			cs.serveSatisfied as serve,
+			cs.sumSatisfied as sum,
+			cs.clientFeedback as Feedback,
+			cs.surveyTime as surveyTime,
+			cs.creditGrade as grade,
+			i.indentid as indentid
+		from
+		cilentresource ct,clientSatisfied cs 
+		RIGHT JOIN indent i ON cs.indentid=i.indentid
+		where i.clientresourceid=ct.id and 1=1
+		<if test="array[0] != ''">
+			 and ct.clientName LIKE concat('%',#{array[0]},'%') 
+		</if>
+		limit #{array[1]},#{array[2]} 
+	</select>
+
+	<select id="getClientResourceCount" resultType="int"   parameterType="Object[]">
+		select
+		count(1)
+		from cilentresource ct where 1=1
+		<if test="array[0]=='客户姓名'  and array[1] != ''">
+			 and ct.clientName LIKE concat('%',#{array[1]},'%') 
+		</if>
+		<if test="array[0]=='联系电话 '  and array[1] != ''">
+		 and clientPhone = #{array[1]}  or workPhone = #{array[1]} or familyPhone = #{array[1]};
+		</if>
+	</select>
+	<select id="getClientResourceCount2" resultType="int"   parameterType="Object[]">
+		select
+		count(1)
+		from cilentresource ct where 1=1
+		<if test="array[0]=='客户姓名'  and array[1] != ''">
+			 and ct.clientName LIKE concat('%',#{array[1]},'%') 
+		</if>
+		<if test="array[0]=='联系电话 '  and array[1] != ''">
+		 	and clientPhone = #{array[1]}  or workPhone = #{array[1]} or familyPhone = #{array[1]};
+		</if>
+		<if test="array[2]!='' and array[2]!=null">
+			and shareStatus=#{array[2]}
+		</if>
+	</select>
+	<insert id="insertClientResource" parameterType="com.lxit.crm.entity.ClientResource">
+		insert into cilentresource(clientCode,clientName,clientSex,clientBrithday,clientType,clientState,clientPhone,workPhone,email,familyPhone,adress,remark,shareStatus,enteringTime,userId)
+		values(#{clientCode},#{clientName},#{clientSex},#{clientBrithday},#{clientType},#{clientState},#{clientPhone},#{workPhone},#{email},#{familyPhone},#{adress},#{remark},#{shareStatus},#{enteringTime},#{userId});
+	</insert>
+	
+	<update id="updateClientResource" parameterType="com.lxit.crm.entity.ClientResource">
+		update cilentresource set clientSex=#{clientSex},clientBrithday=#{clientBrithday},
+		clientType=#{clientType},clientState=#{clientState},clientPhone=#{clientPhone},
+		workPhone=#{workPhone},email=#{email},familyPhone=#{familyPhone},adress=#{adress},remark=#{remark}
+		where clientCode=#{clientCode}
+	</update>
+	<update id="updateClientResourceIndent" parameterType="com.lxit.crm.entity.ClientResource">
+		update cilentresource set clientPhone=#{clientPhone},
+		workPhone=#{workPhone},adress=#{adress}  where clientCode=#{clientCode}
+	</update>
+	<update id="updateUserId" parameterType="com.lxit.crm.entity.ClientResource">
+		update cilentresource set userId=#{userId} where clientCode=#{clientCode}
+	</update>
+	<delete id="deleteClientResource" parameterType="com.lxit.crm.entity.ClientResource">
+		delete from cilentresource where id=#{id}
+	</delete>
+	
+	<select id="getClientResoureceMohu" resultMap="ResourceMap">
+		select id,cr.clientName,cr.clientSex,(select
+		dictionaryvalue from dictionary where dectionarycodingId =
+		cr.clientType) as dictionaryvalue,cr.clientState,cr.enteringTime,
+		(select
+		dictionaryvalue from dictionary where dectionarycodingId =
+		cr.shareStatus) as dictionaryvalue2,u.userName from cilentResource cr 
+		inner join user u on u.userId=cr.userId where clientName CONTAINS ('%',#{clientName},'%') 
+		OR clientPhone CONTAINS ('%',#{clientPhone},'%')
+	</select>
+	
+</mapper>

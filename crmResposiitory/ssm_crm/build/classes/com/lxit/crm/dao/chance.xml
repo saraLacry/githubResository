@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Chance">
+	<insert id="insert" parameterType="com.lxit.crm.entity.Chance">
+		insert into chance
+		(chanceNumber,chanceName,chanceType,chancecontext,startDate,userId,lastUserId,lastDateTime,chanceallot,remark)
+		values(#{chanceNumber},#{chanceName},#{chanceType},#{chanceContext},#{startDate},#{userName},#{lastName},#{lastDateTime},#{chanceallot},#{remark})
+	</insert>
+
+	<update id="update" parameterType="com.lxit.crm.entity.Chance">
+		update chance 
+			<set>
+				<if test="chanceName!=null">
+					chanceName=#{chanceName},
+				</if>
+				<if test="chanceType!=null">
+					chanceType=#{chanceType},
+				</if>
+				<if test="chanceContext!=null">
+					chancecontext=#{chanceContext},
+				</if>
+				<if test="lastName!=null">
+					lastUserId=#{lastName},
+				</if>
+				<if test="lastDateTime!=null">
+					lastDateTime=#{lastDateTime},
+				</if>
+				<if test="chanceallot!=null">
+					chanceallot=#{chanceallot},
+				</if>
+				<if test="remark!=null">
+					remark=#{remark}
+				</if>
+			</set>
+		where id = #{id}
+	</update>
+
+	<select id="getList" parameterType="java.util.Map" resultType="com.lxit.crm.entity.Chance">
+		select  DISTINCT(c.id) as id,c.chanceNumber as chanceNumber,c.chanceName as chanceName,
+		<choose>
+			<when test="chanceId!=null">
+				d.dectionarycodingId as chanceType,
+			</when>
+			<otherwise>
+				d.dictionaryvalue as chanceType,
+			</otherwise>
+		</choose>
+		c.chancecontext as chancecontext,c.startDate as startDate,u1.userName as userName,u2.userName as lastName, C.lastDateTime lastDateTime,u3.userName as chanceallot,c.remark as remark
+		 from chance c LEFT JOIN user u1 on c.userId = u1.userId LEFT JOIN dictionary d on c.chanceType = d.dectionarycodingId LEFT JOIN user u2 on c.lastUserId = u2.userId  LEFT JOIN user u3 on c.chanceallot = u3.userId 
+		<choose>
+			<when test="chanceId!=null">
+				where c.id = #{chanceId}
+			</when>
+			<otherwise>
+				<choose>
+					<when test="userId!=null">
+						where (c.userId=#{userId} or c.chanceallot=#{userId})
+					</when>
+					<otherwise>
+						inner join user u on 1=1 where  (c.userId = u.userId or u.userId = c.chanceallot) and u.deptId=#{deptId} 
+					</otherwise>
+				</choose>
+				<if test="username!=null">
+					and c.chanceName like concat('%',#{username},'%')
+				</if>
+			</otherwise>
+		</choose>
+
+	</select>
+
+	<select id="getCount" parameterType="java.util.Map" resultType="int">
+		select count(DISTINCT(id)) from chance c
+		<choose>
+			<when test="userId!=null">
+				where (c.userId=#{userId} or c.chanceallot=#{userId})
+			</when>
+			<otherwise>
+				, user u where  (c.userId = u.userId or u.userId = c.chanceallot) and u.deptId=#{deptId} 
+			</otherwise>
+		</choose>
+		<if test="username!=null">
+			and c.chanceName like concat('%',#{username},'%')
+		</if>
+	</select>
+</mapper>

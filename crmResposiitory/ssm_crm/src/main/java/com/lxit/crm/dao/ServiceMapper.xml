@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ServiceMapper">
+
+	<resultMap type="com.lxit.crm.entity.Service" id="ServiceMap">
+		<id column="serviceId" property="serviceId"></id>
+		<result column="serviceName" property="ServiceName" />
+		<result column="serviceType" property="serviceType" />
+		<result column="serviceState" property="serviceState" />
+		<result column="servicelastDate" property="servicelastDate" />
+		<result column="serviceContent" property="serviceContent" />
+		<result column="Remark" property="Remark" />
+		<result column="Foundid" property="Foundid" />
+		<result column="disposeceresult" property="disposeceresult" />
+		<result column="disposeExplain" property="disposeExplain" />
+		<result column="feedbackResult" property="feedbackResult" />
+		<result column="operationidName" property="operationidName" />
+		<result column="foundidName" property="foundidName" />
+		<result column="clientName" property="clientName" />
+		<result column="phoneClient" property="phoneClient" />
+		<result column="ServiceInsertdate" property="ServiceInsertdate" />
+		<association property="user" javaType="com.lxit.crm.entity.User">
+			<id property="userid" column="userId" />
+			<result property="username" column="username" />
+		</association>
+	</resultMap>
+
+
+	<!-- </resultMap> -->
+	<!-- 查询数据表格 -->
+	<select id="listService" resultType="com.lxit.crm.entity.Service">
+		<!-- select ServiceId -->
+		<!-- ,serviceName ,serviceType ,ServiceState ,ServicelastDate, -->
+		<!-- Operationid,Disposeid ,ClientId -->
+		<!-- ,ServiceContent,Remark,Foundid,Disposeceresult,DisposeExplain,FeedbackResult,feedbackExplain -->
+		<!-- from Service -->
+		select u.userName as operationidName ,us.username as disposeidName
+		,s.serviceName ,
+		s.serviceType,s.serviceState,s.servicelastDate,s.serviceId
+		,s.clientName ,s.phoneClient,s.ServiceContent,s.Remark,s.Foundid,
+		s.Disposeceresult,s.DisposeExplain,s.FeedbackResult,s.feedbackExplain
+		from
+		Service s INNER
+		JOIN `user` u
+		on u.userId = s.Operationid
+		INNER JOIN
+		`user` us
+		on
+		us.userid = s.Disposeid
+
+	</select>
+
+	<select id="selectServiceById" resultType="com.lxit.crm.entity.Service">
+
+		select
+		u.username as
+		foundidName ,us.username as disposeidName ,s.serviceId,s.serviceName
+		,s.serviceType,s.serviceState,s.servicelastDate,s.serviceContent,s.remark,s.disposeceresult,s.disposeExplain,s.feedbackResult
+		,s.feedbackExplain,s.phoneClient,s.clientName ,s.serviceInsertdate
+		from
+		Service s INNER JOIN `user` u on u.userid = s.foundid
+		INNER JOIN
+		`user` us on us.userid = s.disposeid
+		where serviceId=#{serviceId}
+	</select>
+
+	<!-- 删除一条服务记录 -->
+	<delete id="deleteService">
+		delete from Service
+		where serviceId= #{serviceId}
+	</delete>
+
+	<!-- 修改一条记录 -->
+	<update id="updateService">
+		update
+		Service
+		set
+		phoneClient=#{phoneClient},
+		serviceContent=#{serviceContent},
+		remark=#{remark}
+		where
+		serviceId=#{serviceId}
+
+	</update>
+
+	<!-- 最后操作 -->
+	<update id="lastoperation">
+		update
+		Service
+		set
+		operationid =#{opid},
+		servicelastDate=#{servicelastDate}
+		where
+		serviceId=#{serviceId}
+	</update>
+
+	<!-- 提交一条服务 -->
+	<update id="submitService">
+		update
+		Service
+		set
+		serviceState=#{serviceState}
+		where
+		serviceId=#{serviceId}
+	</update>
+
+	<!-- 分配一条数据 -->
+	<update id="AllocationService">
+		update
+		Service
+		set
+		disposeid = #{opid}
+		where
+		serviceId=#{serviceId}
+	</update>
+
+	<!-- 反馈 -->
+	<update id="feedbackService">
+		update
+		Service
+		set
+		serviceState =#{serviceState},
+		feedbackExplain = #{feedbackExplain}
+		where
+		serviceId=#{serviceId}
+	</update>
+
+	<!-- 归档 -->
+	<update id="pigeonholeService">
+
+		update
+		Service
+		set
+		serviceState =#{serviceState},
+		disposeid = #{opid}
+		where
+		serviceId=#{serviceId}
+
+
+	</update>
+	<!-- 处理一条数据 -->
+	<update id="disposeupdaet">
+		update
+		Service
+		set
+		serviceState = #{serviceState},
+		disposeExplain =
+		#{disposeExplain}
+		where
+		serviceId= #{serviceId}
+	</update>
+
+
+	<select id="insertServiceinto">
+		insert into
+		Service(serviceName,serviceType,serviceState,
+		servicelastDate,operationid,disposeid,serviceContent
+		,remark,foundid ,serviceInsertdate,phoneClient,clientName)
+		value(#{serviceName},#{serviceType},#{serviceState},
+		#{servicelastDate},#{opid},#{opid},#{serviceContent},
+		#{remark},#{opid},#{serviceInsertdate}
+		,#{phoneClient},#{clientName})
+	</select>
+
+</mapper>

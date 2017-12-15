@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Contend">
+<select id="getList" parameterType="java.util.Map" resultType="com.lxit.crm.entity.Contend">
+	select c.id as id,c.contendTitle as contendTitle ,
+	<choose>
+		<when test="id!=null">
+			c.contendType as type,
+		</when>
+		<otherwise>
+			d.dictionaryvalue as type,
+		</otherwise>
+	</choose>
+	<if test="id!=null">
+		
+	</if>
+	c.date as date ,d2.dictionaryvalue as state ,c.startDate as startDate ,u.userName as userName ,c.result as result from contend  c ,user u,dictionary d,dictionary d2 where c.userId = u.userId and c.contendType = d.dectionarycodingId and c.state = d2.dectionarycodingId
+	<if test="date!=null">
+		and CONCAT(YEAR(#{date}),',',MONTH(#{date})) = CONCAT(YEAR(date),',',MONTH(date))  
+	</if>
+	<if test="id!=null">
+		and id = #{id}
+	</if>
+	<if test="pageIndex!=null">
+		limit #{pageIndex},#{pageSize}
+	</if>
+</select>
+
+<select id="getCount" parameterType="java.util.Map" resultType="int">
+	select count(1) from contend  c ,user u,dictionary d,dictionary d2 where c.userId = u.userId and c.contendType = d.dectionarycodingId and c.state = d2.dectionarycodingId
+	<if test="date!=null">
+		CONCAT(YEAR(#{date}),',',MONTH(#{date})) = CONCAT(YEAR(date),',',MONTH(date))  
+	</if>
+</select>
+
+<insert id="insert" parameterType="com.lxit.crm.entity.Contend" >
+	insert into contend (contendTitle,contendType,date,state,startDate,userId,result)values(#{contendTitle},#{type},#{date},#{state},#{startDate},#{userName},#{result})
+</insert>
+
+<update id="update" parameterType="com.lxit.crm.entity.Contend">
+	update contend 
+	<set>
+		<if test="contendTitle!=null">
+			contendTitle=#{contendTitle},
+		</if>
+		<if test="type!=null">
+			contendType=#{type},
+		</if>
+		<if test="date!=null">
+			date=#{date},
+		</if>
+		<if test="state!=null">
+			state=#{state},
+		</if>
+		<if test="startDate!=null">
+			startDate = #{startDate},
+		</if>
+		<if test="userName!=null">
+			userId = #{userName},
+		</if>
+		<if test="result!=null">
+			result = #{result}
+		</if>
+	</set>
+	where id = #{id}
+</update>
+</mapper>

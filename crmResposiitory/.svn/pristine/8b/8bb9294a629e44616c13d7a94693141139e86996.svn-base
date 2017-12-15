@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="personlMapper">
+	<parameterMap type="com.lxit.crm.entity.User" id="parmesUserMap">
+		<parameter property="loginId" />
+		<parameter property="userId" />
+	</parameterMap>
+
+	<!-- 修改登录Id -->
+	<select id="personlLoginUpdate" parameterMap="parmesUserMap">
+		update user set
+		loginId = #{loginId} where userId = #{userId}
+	</select>
+
+	<parameterMap type="com.lxit.crm.entity.User" id="parmesUserMapphone">
+		<parameter property="phone" />
+		<parameter property="userId" />
+	</parameterMap>
+
+	<!-- 修改手机号 -->
+	<select id="personPhoneUpdate" parameterMap="parmesUserMapphone">
+		update user set
+		phone = #{phone} where userId = #{userId}
+	</select>
+
+	<parameterMap type="com.lxit.crm.entity.User" id="parmesUserMapLoginPass">
+		<parameter property="passWord" />
+		<parameter property="userId" />
+	</parameterMap>
+
+	<!-- 修改密码 -->
+	<select id="personLoginPassUpdate" parameterMap="parmesUserMapLoginPass">
+		update user set
+		passWord = #{passWord} where userId = #{userId}
+	</select>
+
+	<parameterMap type="com.lxit.crm.entity.User" id="parmesUserMapLoginDeptId">
+		<parameter property="userId" />
+	</parameterMap>
+
+	<!-- 查询部门 -->
+	<select id="personLoginDeptSelect" parameterMap="parmesUserMapLoginDeptId" resultType="com.lxit.crm.entity.Dept">
+		select
+		d1.deptId,d1.deptName from user u1,dept d1 where u1.deptId = d1.deptid
+		and u1.userId = #{userId}
+	</select>
+</mapper>

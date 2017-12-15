@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="StatisticsIndent">
+	<resultMap type="com.lxit.crm.entity.StatisticsIndent" id="StatisticsIndentMap">
+		<id property="data" column="data" />
+		<result property="count" column="count" />
+		<result property="allMoney" column="allMoney" />
+		<result property="forecast" column="forecast" />
+	</resultMap>
+	<select id="getListstatistics" resultMap="StatisticsIndentMap"  parameterType="Object[]">
+		select
+		LEFT(indenttime,7) as data,count(indentnumber) as count,(select
+		SUM(indentgoodsmoney*indentgoodsnumber) FROM indentgoods where
+		indentnumber in (SELECT indentnumber from indent where
+		LEFT(indenttime,7) = LEFT(i.indenttime,7))) as allmoney ,
+		(select goalMoney from forecast where LEFT(date,7) = LEFT(i.indenttime,7)) as forecast from indent i
+		where 1=1 
+		
+		${array[4]}
+		<!-- <if test="array[2] !=null and array[3] !=null">
+			and LEFT(i.indenttime,7) >= LEFT(#{array[2]},7) AND LEFT(i.indenttime,7)&lt;=LEFT(#{array[3]},7)
+		</if>
+		 <if test="array[2] !='' and array[3]=='' ">
+			and LEFT(i.indenttime,7) = LEFT(#{array[2]},7)  
+		</if>
+		<if test="array[2] =='' and array[3]!='' ">
+			and LEFT(i.indenttime,7) = LEFT(#{array[3]},7) 
+		</if>    -->
+		
+		GROUP BY LEFT(i.indenttime,7)ORDER BY i.indenttime desc limit #{array[0]},#{array[1]};
+
+	</select>
+	<!-- <select id="getListstatisticsCount" resultMap="StatisticsIndentMap">
+		select
+		LEFT(indenttime,7) as data,count(indentnumber) as count,(select
+		SUM(indentgoodsmoney*indentgoodsnumber) FROM indentgoods where
+		indentnumber in (SELECT indentnumber from indent where
+		LEFT(indenttime,7) = LEFT(i.indenttime,7))) as allmoney from indent i
+		GROUP BY LEFT(i.indenttime,7)ORDER BY i.indenttime desc limit #{pageIndex},#{pageSize};
+
+	</select> -->
+
+
+</mapper>

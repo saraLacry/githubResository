@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="User">
+	<resultMap type="com.lxit.crm.entity.User" id="user">
+		<id column="userid" property="userId" />
+		<result column="userNumber" property="userNumber" />
+		<result column="userName" property="userName" />
+		<result column="createTime" property="createTime" />
+		<result column="loginId" property="loginId" />
+		<result column="phone" property="phone" />
+		<result column="remark" property="remark" />
+		<result column="passWord" property="passWord" />
+		<result column="count" property="count" />
+		<result column="lasttime" property="lastTime" />
+		<result column="outstandinggrade" property="outstandinggrade" />
+		<association property="dept" column="deptId" select="Dept.getDept" />
+		<association property="state" column="state"
+			select="Dictionary.getDiction" />
+		<association property="sex" column="sex"
+			select="Dictionary.getDiction" />
+		<association property="role" column="roleId" select="Role.getRole" />
+	</resultMap>
+	<select id="login" parameterType="com.lxit.crm.entity.User"
+		resultMap="user">
+		select
+		userid,userNumber,userName,deptId,state,createTime,loginId,phone,sex,remark,passWord,count,lasttime,lastuserId,leaduserId,outstandinggrade,roleId
+		from user where
+		loginId = #{loginId} and `passWord` = #{passWord}
+	</select>
+	<select id="getShare" parameterType="com.lxit.crm.entity.User"
+		resultMap="user">
+		select userId,userName from user where roleid=#{roleid}
+	</select>
+</mapper>

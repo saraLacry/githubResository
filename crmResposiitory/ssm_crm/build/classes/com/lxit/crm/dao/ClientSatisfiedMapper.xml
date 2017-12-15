@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ClientSatisfied">
+	<resultMap type="com.lxit.crm.entity.ClientSatisfied" id="SatisfiedMap">
+		<id property="id" column="id"/>
+		<result property="qualitySatisfied" column="qualitySatisfied"/>
+		<result property="priceSatisfied" column="priceSatisfied"/>
+		<result property="serveSatisfied" column="serveSatisfied"/>
+		<result property="sumSatisfied" column="sumSatisfied"/>
+		<result property="clientFeedback" column="clientFeedback"/>
+		<result property="surveyTime" column="surveyTime"/>
+		<result property="name" column="name"/>
+		<result property="indentId" column="indentId"/>
+		<result property="dictionaryvalue" column="dictionaryvalue"/>
+		<result property="dictionaryvalue2" column="dictionaryvalue2"/>
+		<association property="clientResource" column="clientId" javaType="com.lxit.crm.entity.ClientResource">
+			<id property="id" column="id"/>
+			<result property="clientCode" column="clientCode"/>
+			<result property="clientName" column="clientName"/>
+			<result property="clientSex" column="clientSex"/>
+			<result property="clientBrithday" column="clientBrithday"/>
+			<result property="clientType" column="clientType"/>
+			<result property="clientState" column="clientState"/>
+			<result property="clientPhone" column="clientPhone"/>
+			<result property="workPhone" column="workPhone"/>
+			<result property="email" column="email"/>
+			<result property="familyPhone" column="familyPhone"/>
+			<result property="adress" column="adress"/>
+			<result property="remark" column="remark"/>
+			<result property="shareStatus" column="shareStatus"/>
+			<result property="enteringTime" column="enteringTime"/>
+		</association>
+	</resultMap>
+	<!-- 数据模糊分页 -->
+	<select id="getListPage" resultMap="SatisfiedMap" parameterType="Object[]">
+		SELECT
+			cs.id,cr.clientName as name,
+			(
+				SELECT
+					dictionaryvalue
+				FROM
+					dictionary
+				WHERE
+					dectionarycodingId = cr.clientType
+			) AS dictionaryvalue,
+			cs.id,
+			cs.qualitySatisfied,
+			cs.priceSatisfied,
+			cs.serveSatisfied,
+			cs.sumSatisfied,
+			cs.clientFeedback,
+			cs.surveyTime
+		FROM
+			clientSatisfied cs
+		INNER JOIN cilentresource cr ON cr.id = cs.clientId
+		where 1=1
+		<if test="array[0]!='' and array[0]!=null">
+			and cr.clientName like concat('%',#{array[0]},'%')
+		</if>
+			order by cs.id limit #{array[1]},#{array[2]}
+	</select>
+	<!-- 根据查询显示条数 -->
+	<select id="getListCount" resultType="int" parameterType="Object[]">
+		SELECT
+			count(1)
+		FROM
+			clientSatisfied cs
+		where 1=1
+		<if test="array[0]!='' and array[0]!=null">
+			and cr.clientName like concat('%',#{array[0]},'%')
+		</if>
+	</select>
+	<!-- 数据增加 -->
+	<insert id="insertSatisfied" parameterType="com.lxit.crm.entity.ClientSatisfied">
+		insert into clientSatisfied(
+			qualitySatisfied,
+			priceSatisfied,
+			serveSatisfied,
+			sumSatisfied,
+			clientFeedback,
+			surveyTime,
+			indentId
+			)
+			values(
+			#{qualitySatisfied},
+			#{priceSatisfied},
+			#{serveSatisfied},
+			#{sumSatisfied},
+			#{clientFeedback},
+			#{surveyTime},
+			#{indentId}
+			)
+	</insert>
+	
+	<!-- 数据修改 -->
+	<update id="updateSatisfied" parameterType="com.lxit.crm.entity.ClientSatisfied">
+		update clientSatisfied set 
+			qualitySatisfied=#{qualitySatisfied},
+			priceSatisfied=#{priceSatisfied},
+			serveSatisfied=#{serveSatisfied},
+			sumSatisfied=#{sumSatisfied},
+			clientFeedback=#{clientFeedback},
+			surveyTime=#{surveyTime}
+			where id=#{id}
+	</update>
+	
+	<!-- 数据删除 -->
+	<delete id="deleteSatisfied" parameterType="com.lxit.crm.entity.ClientSatisfied">
+		delete from clientSatisfied where id=#{id}
+	</delete>
+	
+	<!-- 根据主键查询 -->
+	<select id="querySatisfied" resultMap="SatisfiedMap" 
+	parameterType="com.lxit.crm.entity.ClientSatisfied">
+		SELECT
+			cs.id,cs.indentId,cr.clientCode,cr.clientName,cr.clientSex,
+			(
+				SELECT
+					dictionaryvalue
+				FROM
+					dictionary
+				WHERE
+					dectionarycodingId = cr.clientType
+			) AS dictionaryvalue,
+			(
+				SELECT
+					dictionaryvalue
+				FROM
+					dictionary
+				WHERE
+					dectionarycodingId = cr.clientState
+			) AS dictionaryvalue2,
+			cs.id,
+			cs.qualitySatisfied,
+			cs.priceSatisfied,
+			cs.serveSatisfied,
+			cs.sumSatisfied,
+			cs.clientFeedback,
+			cs.surveyTime
+		FROM
+			clientSatisfied cs
+		INNER JOIN cilentresource cr ON cr.id = cs.indentId
+		where cs.id=#{id}
+	</select>
+</mapper>

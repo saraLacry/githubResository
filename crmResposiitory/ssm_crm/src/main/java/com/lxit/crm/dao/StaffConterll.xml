@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="StaffMapper">
+	<!-- 部门查询 -->
+	<select id="staffDeptSelect" resultType="com.lxit.crm.entity.Dept">
+		select
+		d1.*
+		from dept d1
+	</select>
+
+	<!-- 角色查询 -->
+	<select id="staffRoleSelect" resultType="com.lxit.crm.entity.Role">
+		select
+		r1.* from role r1
+	</select>
+
+	<parameterMap type="com.lxit.crm.entity.User" id="parmsUserMap">
+		<parameter property="userNumber" />
+		<parameter property="userName" />
+		<parameter property="sexs" />
+		<parameter property="states" />
+		<parameter property="deptIds" />
+		<parameter property="roleIds" />
+		<parameter property="remark" />
+		<parameter property="loginId" />
+		<parameter property="createTime" />
+		<parameter property="lastTime" />
+		<parameter property="phone" />
+	</parameterMap>
+
+	<!-- 增加员工 -->
+	<select id="insertUser" parameterMap="parmsUserMap" resultType="com.lxit.crm.entity.User">
+		insert into user
+		(userNumber,UserName,Sex,State,DeptId,RoleId,Remark,LoginId,CreateTime,LastTime,Phone)values
+		(#{userNumber},#{userName},#{sexs},#{states},#{deptIds},#{roleIds},#{remark},#{loginId},#{createTime},#{lastTime},#{phone})
+	</select>
+
+	<resultMap type="com.lxit.crm.entity.User" id="userSpanCountMap">
+		<id column="userid" property="userId" />
+		<result column="userNumber" property="userNumber" />
+		<result column="userName" property="userName" />
+		<result column="state" property="states" />
+		<result column="createTime" property="createTime" />
+		<result column="sex" property="sexs" />
+		<result column="loginId" property="loginId" />
+		<result column="phone" property="phone" />
+		<result column="remark" property="remark" />
+		<result column="passWord" property="passWord" />
+		<result column="count" property="count" />
+		<result column="lasttime" property="lastTime" />
+		<result column="deptId" property="deptIds" />
+		<result column="roleId" property="roleIds" />
+		<result column="outstandinggrade" property="outstandinggrade" />
+	</resultMap>
+
+	<!-- 查询员工 -->
+	<select id="staffSelectWork" resultMap="userSpanCountMap">
+		select
+		u1.userId,u1.userNumber,u1.userName,u1.deptId,u1.state,u1.createTime,u1.loginId,u1.phone,u1.sex,u1.remark,u1.count,u1.lasttime,u1.lastuserId,u1.leaduserId,u1.outstandinggrade,u1.roleid
+		from user u1
+	</select>
+
+	<parameterMap type="com.lxit.crm.entity.User" id="selctUserUpdateName">
+		<parameter property="userId" />
+	</parameterMap>
+
+	<!-- 查询修改前的角色姓名 -->
+	<select id="selectUpdateRoleName" parameterMap="selctUserUpdateName"
+		resultType="com.lxit.crm.entity.Role">
+		select r1.roleId,r1.roleName from user u1,role r1 where
+		u1.roleId = r1.roleId and u1.userId = #{userId}
+	</select>
+
+	<parameterMap type="com.lxit.crm.entity.User" id="staffUpdateParmsMap">
+		<parameter property="userId" />
+		<parameter property="userNumber" />
+		<parameter property="userName" />
+		<parameter property="sexs" />
+		<parameter property="states" />
+		<parameter property="deptIds" />
+		<parameter property="roleIds" />
+		<parameter property="phone" />
+		<parameter property="remark" />
+	</parameterMap>
+
+	<!--修改员工 -->
+	<select id="staffUpdateSpan" parameterMap="staffUpdateParmsMap"
+		resultType="com.lxit.crm.entity.User">
+		update user SET
+		userNumber = #{userNumber}, userName =
+		#{userName},
+		sex = #{sexs},
+		state = #{states},
+		deptId = #{deptIds},
+		roleId = #{roleIds},
+		phone = #{phone},
+		remark = #{remark} where userId =
+		#{userId}
+	</select>
+
+	<!-- 删除员工 -->
+	<select id="staffDelSpanWith" parameterType="com.lxit.crm.entity.User">
+		delete from user
+		where userId = #{userId}
+	</select>
+
+	<parameterMap type="com.lxit.crm.entity.User" id="staffAppointSelect">
+		<parameter property="userId" />
+	</parameterMap>
+
+	<!-- 查询指定部门 -->
+	<select id="staffDeptSelectCount" parameterMap="staffAppointSelect"
+		resultType="com.lxit.crm.entity.Dept">
+		select d1.deptId,d1.deptName from dept d1,user u1 where
+		d1.deptId = u1.deptId and u1.userId = #{userId}
+	</select>
+
+	<parameterMap type="com.lxit.crm.entity.User" id="staffWithCountSpan">
+		<parameter property="states" />
+		<parameter property="userId" />
+	</parameterMap>
+
+	<!-- 状态禁用 -->
+	<select id="staffSaveInsertCount" parameterMap="staffWithCountSpan">
+		update user set
+		state = #{states} where userId = #{userId}
+	</select>
+</mapper>

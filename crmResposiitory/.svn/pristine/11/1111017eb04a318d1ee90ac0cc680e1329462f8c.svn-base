@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ClientDevelop">
+	<resultMap type="com.lxit.crm.entity.ClientDevelop" id="DevelopMap">
+		<id property="id" column="id"/>
+		<result property="developCode" column="developCode"/>
+		<result property="developMonth" column="developMonth"/>
+		<result property="lastOperateTime" column="lastOperateTime"/>
+		<result property="createdate" column="createdate"/>
+		<result property="planState" column="planState"/>
+		<result property="planContent" column="planContent"/>
+		<result property="userName" column="userName"/>
+		<result property="planName" column="planName"/>
+		<result property="loginId" column="loginId"/>
+		<result property="userId" column="userId"/>
+		<result property="lastOperateUser" column="lastOperateUser"/>
+		<association property="user" column="userId" javaType="com.lxit.crm.entity.User">
+			<id property="userId" column="userId"/>
+			<result property="userNumber" column="userNumber"/>
+			<result property="userName" column="userName"/>
+			<result property="createTime" column="createTime"/>
+			<result property="loginId" column="loginId"/>
+			<result property="phone" column="phone"/>
+			<result property="remark" column="remark"/>
+			<result property="passWord" column="passWord"/>
+			<result property="count" column="count"/>
+			<result property="lasttime" column="lasttime"/>
+			<result property="lastuserName" column="lastuserName"/>
+			<result property="leaduserId" column="leaduserId"/>
+			<result property="outstandinggrade" column="outstandinggrade"/>
+		</association>
+		<association property="state" column="state"
+			select="Dictionary.getDictionary" />
+		<association property="sex" column="sex"
+			select="Dictionary.getDictionary" />
+	</resultMap>
+	<select id="getListPage" resultMap="DevelopMap" parameterType="Object[]">
+		select cd.id,cd.developMonth,cd.createdate,cd.lastOperateTime,
+		planName,u.loginId as loginId from clientDevelop cd,user u 
+		where u.userId=cd.userId
+		<if test="array[0]!='' and array[0]!=null">
+			and cd.developMonth=#{array[0]}
+		</if>
+		order by cd.id limit #{array[1]},#{array[2]}
+
+	</select>
+	<select id="getDevelopCount" resultType="int">
+		select count(1) from clientDevelop cd
+		inner join user u on u.userId=cd.userId
+		where 1=1
+		<if test="array[0]!='' and array[0]!=null">
+			and cd.developMonth=#{array[0]}
+		</if>
+	</select>
+	<insert id="insertDevelop" parameterType="com.lxit.crm.entity.ClientDevelop">
+		INSERT INTO clientDevelop(developCode,planName,developMonth,planState,planContent,createdate,lastOperateTime,userId,lastOperateUser)
+		VALUES(#{developCode},#{planName},#{developMonth},#{planState},#{planContent},#{createdate},#{lastOperateTime},#{userId},#{lastOperateUser})
+	</insert>
+	<update id="updateDevelop" parameterType="com.lxit.crm.entity.ClientDevelop">
+		UPDATE clientDevelop SET planContent=#{planContent}
+		where id=#{id}
+	</update>
+	<delete id="deleteDevelop" parameterType="com.lxit.crm.entity.ClientDevelop">
+		delete from clientDevelop where id=#{id}
+	</delete>
+	<select id="getDevelopbyId" resultMap="DevelopMap">
+		select * from clientDevelop where id=#{id}
+	</select>
+</mapper>

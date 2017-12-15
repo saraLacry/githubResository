@@ -1,0 +1,373 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="compact">
+
+	<resultMap type="com.lxit.crm.entity.Compact" id="compact">
+		<id property="compactId" column="compactId" />
+		<result property="compactName" column="compactName" />
+		<!-- <result property="compactTypeId" column="compactTypeId" /> -->
+		<result property="compactMoney" column="compactMoney" />
+		<result property="compactOwnerName" column="compactOwnerName" />
+		<result property="compactSecondName" column="compactSecondName" />
+		<result property="compactLicenceOwner" column="compactLicenceOwner" />
+		<result property="compactLicenceSecond" column="compactLicenceSecond" />
+		<result property="compactContent" column="compactContent" />
+		<result property="compactRemarks" column="compactRemarks" />
+		<!-- <result property="compactStatusId" column="compactStatusId" /> -->
+		<result property="compactFinallyDate" column="compactFinallyDate" />
+		<result property="compactPendingPersonId" column="compactPendingPersonId" />
+		<result property="compactCreateId" column="compactCreateId" />
+		<result property="compactCreateDate" column="compactCreateDate" />
+		<result property="compactOpinion" column="compactOpinion" />
+		<result property="compactExecute" column="compactExecute" />
+		<result property="compactUpdate" column="compactUpdate" />
+		<result property="compactAssignment" column="compactAssignment" />
+		<result property="compactdelete" column="compactdelete" />
+		<result property="compactIndex" column="compactIndex" />
+		<result property="compactPage" column="compactPage" />
+		<result property="compactType" column="compactType" />
+		<result property="pswdictionaryvalue" column="pswdictionaryvalue" />
+		<result property="usernameid" column="usernameid" />
+		<!-- 数据字典 -->
+		<association property="compactStatusId" javaType="com.lxit.crm.entity.Dictionary">
+			<id property="dectionarycodingId" column="dectionarycodingId" />
+			<result property="dictionarycoding" column="dictionarycoding" />
+			<result property="dictionaryName" column="dictionaryName" />
+			<result property="dictionaryvalue" column="dictionaryvalue" />
+			<result property="lastTime" column="lastTime" />
+			<result property="dictionaryremark" column="dictionaryremark" />
+			<result property="userName" column="userId" />
+		</association>
+		<!-- 数据字典 -->
+		<association property="compactTypeId" javaType="com.lxit.crm.entity.Dictionary">
+			<id property="dectionarycodingId" column="dectionarycodingId" />
+			<result property="dictionarycoding" column="dictionarycoding" />
+			<result property="dictionaryName" column="dictionaryName" />
+			<result property="dictionaryvalue" column="dictionaryvalue" />
+			<result property="lastTime" column="lastTime" />
+			<result property="dictionaryremark" column="dictionaryremark" />
+			<result property="userName" column="userId" />
+		</association>
+
+
+	</resultMap>
+
+
+
+
+	<!-- 合同进行创建 -->
+	<insert id="add">
+		INSERT into compact
+		VALUES(null,#{compactName},
+		#{compactStatusId.dectionarycodingId},
+		#{compactMoney},#{compactOwnerName},#{compactSecondName},#{compactLicenceOwner},
+		#{compactLicenceSecond},#{compactContent},#{compactRemarks}, 41,
+		now(),#{compactPendingPersonId},#{compactCreateId},
+		now(),null,null,null,null,null,null,null)
+	</insert>
+
+	<!-- 使用id进行判断 -->
+	<select id="selectId">
+		select * from compact where compactId=#{compactId}
+	</select>
+
+	<!-- 合同进行查询 模糊查询 分页查询 -->
+	<select id="compactselect" resultType="com.lxit.crm.entity.Compact"
+		resultMap="compact">
+		SELECT c.compactId,c.compactName,t.dictionaryvalue as
+		compactType,s.dictionaryvalue
+		as
+		pswdictionaryvalue,c.compactFinallyDate,u.userName as usernameid
+		FROM
+		compact c,dictionary s,dictionary t,`user` u
+		WHERE
+		c.compactStatusId=s.dectionarycodingId and
+		c.compactTypeId=t.dectionarycodingId and
+		c.compactPendingPersonId=u.userId
+		<!-- 合同名称 -->
+		<if test="''!=compactName and  null !=compactName ">
+			and c.compactName=#{compactName}
+		</if>
+		<!-- 合同类型 -->
+		<if test="compactTypeId.dectionarycodingId!=0">
+			AND c.compactTypeId=#{compactTypeId.dectionarycodingId}
+		</if>
+		<!-- 合同状态 -->
+		<if test="compactStatusId.dectionarycodingId!=0">
+			and c.compactStatusId=#{compactStatusId.dectionarycodingId}
+		</if>
+
+		LIMIT #{compactPage},#{compactIndex}
+	</select>
+
+	<!-- 合同进行条数查询 -->
+	<select id="compactcount" resultType="com.lxit.crm.entity.Compact">
+		SELECT c.compactId,c.compactName,t.dictionaryvalue as
+		pswdictionaryvalue ,s.dictionaryvalue
+		as compactType
+		,c.compactFinallyDate,u.userName
+		FROM compact c,dictionary s,dictionary
+		t,`user` u
+		WHERE c.compactStatusId=t.dectionarycodingId and
+		c.compactTypeId=s.dectionarycodingId and
+		c.compactPendingPersonId=u.userId
+		<!-- 合同名称 -->
+		<if test="''!=compactName and  null !=compactName ">
+			and c.compactName=#{compactName}
+		</if>
+		<!-- 合同类型 -->
+		<if test="compactTypeId.dectionarycodingId!=0">
+			AND c.compactTypeId=#{compactTypeId.dectionarycodingId}
+		</if>
+
+		<!-- 合同状态 -->
+		<if test="compactStatusId.dectionarycodingId!=0">
+			and c.compactStatusId=#{compactStatusId.dectionarycodingId}
+		</if>
+	</select>
+	
+	
+	
+	
+	<!-- 合同进行查询 模糊查询 分页查询  审核 -->
+	<select id="compactselectshh" resultType="com.lxit.crm.entity.Compact"
+		resultMap="compact">
+		SELECT c.compactId,c.compactName,t.dictionaryvalue as
+		compactType,s.dictionaryvalue
+		as
+		pswdictionaryvalue,c.compactFinallyDate,u.userName as usernameid
+		FROM
+		compact c,dictionary s,dictionary t,`user` u
+		WHERE
+		c.compactStatusId=s.dectionarycodingId and
+		c.compactTypeId=t.dectionarycodingId and
+		c.compactPendingPersonId=u.userId
+		<!-- 合同名称 -->
+		<if test="''!=compactName and  null !=compactName ">
+			and c.compactName=#{compactName}
+		</if>
+		<!-- 合同类型 -->
+		<if test="compactTypeId.dectionarycodingId!=0">
+			AND c.compactTypeId=#{compactTypeId.dectionarycodingId}
+		</if>
+		<!-- 合同状态 -->
+		<if test="compactStatusId.dectionarycodingId!=0">
+			and c.compactStatusId=#{compactStatusId.dectionarycodingId}
+		</if>
+
+		LIMIT #{compactPage},#{compactIndex}
+	</select>
+
+	<!-- 合同进行条数查询 -->
+	<select id="compactcountshh" resultType="com.lxit.crm.entity.Compact">
+		SELECT c.compactId,c.compactName,t.dictionaryvalue as
+		pswdictionaryvalue ,s.dictionaryvalue
+		as compactType
+		,c.compactFinallyDate,u.userName
+		FROM compact c,dictionary s,dictionary
+		t,`user` u
+		WHERE c.compactStatusId=t.dectionarycodingId and
+		c.compactTypeId=s.dectionarycodingId and
+		c.compactPendingPersonId=u.userId
+		<!-- 合同名称 -->
+		<if test="''!=compactName and  null !=compactName ">
+			and c.compactName=#{compactName}
+		</if>
+		<!-- 合同类型 -->
+		<if test="compactTypeId.dectionarycodingId!=0">
+			AND c.compactTypeId=#{compactTypeId.dectionarycodingId}
+		</if>
+
+		<!-- 合同状态 -->
+		<if test="compactStatusId.dectionarycodingId!=0">
+			and c.compactStatusId=#{compactStatusId.dectionarycodingId}
+		</if>
+	</select>
+	
+	
+	
+	
+	<!-- 合同进行查询 模糊查询 分页查询 管理-->
+	<select id="compactselectguanli" resultType="com.lxit.crm.entity.Compact"
+		resultMap="compact">
+		SELECT c.compactId,c.compactName,t.dictionaryvalue as
+		compactType,s.dictionaryvalue
+		as
+		pswdictionaryvalue,c.compactFinallyDate,u.userName as usernameid
+		FROM
+		compact c,dictionary s,dictionary t,`user` u
+		WHERE
+		c.compactStatusId=s.dectionarycodingId and
+		c.compactTypeId=t.dectionarycodingId and
+		c.compactPendingPersonId=u.userId
+		<!-- 合同名称 -->
+		<if test="''!=compactName and  null !=compactName ">
+			and c.compactName=#{compactName}
+		</if>
+		<!-- 合同类型 -->
+		<if test="compactTypeId.dectionarycodingId!=0">
+			AND c.compactTypeId=#{compactTypeId.dectionarycodingId}
+		</if>
+		<!-- 合同状态 -->
+		<if test="compactStatusId.dectionarycodingId!=0">
+			and c.compactStatusId=#{compactStatusId.dectionarycodingId}
+		</if>
+
+		LIMIT #{compactPage},#{compactIndex}
+	</select>
+
+	<!-- 合同进行条数查询 管理 -->
+	<select id="compactcountguanli" resultType="com.lxit.crm.entity.Compact">
+		SELECT c.compactId,c.compactName,t.dictionaryvalue as
+		pswdictionaryvalue ,s.dictionaryvalue
+		as compactType
+		,c.compactFinallyDate,u.userName
+		FROM compact c,dictionary s,dictionary
+		t,`user` u
+		WHERE c.compactStatusId=t.dectionarycodingId and
+		c.compactTypeId=s.dectionarycodingId and
+		c.compactPendingPersonId=u.userId
+		<!-- 合同名称 -->
+		<if test="''!=compactName and  null !=compactName ">
+			and c.compactName=#{compactName}
+		</if>
+		<!-- 合同类型 -->
+		<if test="compactTypeId.dectionarycodingId!=0">
+			AND c.compactTypeId=#{compactTypeId.dectionarycodingId}
+		</if>
+
+		<!-- 合同状态 -->
+		<if test="compactStatusId.dectionarycodingId!=0">
+			and c.compactStatusId=#{compactStatusId.dectionarycodingId}
+		</if>
+	</select>
+	
+	
+	
+
+	<!-- 状态查询 -->
+	<select id="compactSt" resultType="com.lxit.crm.entity.Dictionary">
+		SELECT * FROM dictionary WHERE
+		dictionarycoding ='CONTRACT_STATE'
+	</select>
+
+	<!-- 类型查询 -->
+	<select id="compacttt" resultType="com.lxit.crm.entity.Dictionary">
+		SELECT * FROM dictionary WHERE
+		dictionarycoding ='CONTRACT_TYPE'
+	</select>
+
+	<!-- 用户查询 -->
+	<select id="userselect" resultType="com.lxit.crm.entity.User">
+		SELECT * FROM `user`
+	</select>
+
+	<!-- 合同状态改变 -->
+	<update id="compactpdate">
+		update compact set
+		compactStatusId=#{compactStatusId.dectionarycodingId}
+		where
+		compactId=#{compactId}
+	</update>
+	<!-- 判断是否已经提交过 -->
+	<select id="userselectsubmit" resultType="com.lxit.crm.entity.Compact">
+		SELECT * FROM compact
+		WHERE compactStatusId=41 and compactId=#{compactId}
+	</select>
+	<!-- 判断是否是代审核 -->
+	<select id="selectri" resultType="com.lxit.crm.entity.Compact">
+		SELECT * FROM compact WHERE
+		compactPendingPersonId=#{array[0]}
+	</select>
+	<!-- 按id查询数据 -->
+	<select id="selectid" resultType="com.lxit.crm.entity.Compact">
+		SELECT
+		compactId,compactName,compactTypeId AS
+		compactType,compactMoney,compactOwnerName,compactSecondName,
+		compactLicenceOwner,compactLicenceSecond,compactContent,compactRemarks,compactPendingPersonId
+		AS usernameid
+		FROM compact WHERE compactId=#{array[0]}
+	</select>
+	<!-- 合同修改 -->
+	<update id="compactup">
+		UPDATE compact SET
+		compactName=#{compactName},
+		compactTypeId=#{compactTypeId.dectionarycodingId},
+		compactMoney=#{compactMoney},
+		compactOwnerName=#{compactOwnerName},
+		compactSecondName=#{compactSecondName},
+		compactLicenceOwner=#{compactLicenceOwner},
+		compactLicenceSecond=#{compactLicenceSecond},
+		compactContent=#{compactContent},
+		compactRemarks=#{compactRemarks},
+		compactPendingPersonId=#{compactPendingPersonId},
+		compactFinallyDate=now()
+		WHERE compactId=#{compactId}
+	</update>
+	<!-- 合同审核 -->
+	<update id="htsh">
+		UPDATE compact SET
+		compactStatusId=#{compactStatusId.dectionarycodingId},
+		compactOpinion=#{compactOpinion}
+		,compactFinallyDate=NOW()
+		WHERE
+		compactId=#{compactId}
+	</update>
+	<!-- 合同提执行 -->
+	<update id="compactpdateexecution">
+		update compact set
+		compactStatusId=#{compactStatusId.dectionarycodingId},
+		compactExecute=#{compactExecute},
+		compactFinallyDate=NOW(),
+		compactPendingPersonId=0
+		where
+		compactId=#{compactId}
+	</update>
+
+	<!-- 合同变更 -->
+	<update id="compactpdatebiangeng">
+		update compact set
+		compactStatusId=#{compactStatusId.dectionarycodingId},
+		compactUpdate=#{compactUpdate},
+		compactFinallyDate=NOW()
+		where
+		compactId=#{compactId}
+	</update>
+
+
+	<!-- 合同转让 -->
+	<update id="compactassignment">
+		update compact set
+		compactStatusId=#{compactStatusId.dectionarycodingId},
+		compactAssignment=#{compactAssignment},
+		compactFinallyDate=NOW()
+		where
+		compactId=#{compactId}
+	</update>
+
+
+	<!-- 合同解除 -->
+	<update id="compactremove">
+		update compact set
+		compactStatusId=#{compactStatusId.dectionarycodingId},
+		compactdelete=#{compactdelete},
+		compactFinallyDate=NOW()
+		where
+		compactId=#{compactId}
+	</update>
+	<!-- 状态判断 -->
+	<select id="compactjudge" resultType="com.lxit.crm.entity.Compact">
+		SELECT* FROM compact WHERE
+		compactStatusId =#{array[0]}
+		and compactId=#{array[1]}
+	</select>
+	<!-- 用户进行审核人判断 -->
+	<select id="userselectjudge" resultType="com.lxit.crm.entity.Compact">
+		SELECT * FROM compact
+		WHERE
+		compactPendingPersonId in (#{array[0]},0)
+		AND
+		compactId=#{array[1]}
+	</select>
+</mapper>

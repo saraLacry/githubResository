@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Analyze">
+	<select id="getList" parameterType="java.util.Map" resultType="com.lxit.crm.entity.Analyze">
+		select CONCAT(YEAR(indenttime),'-',MONTH(indenttime)) as
+		date,sum(ig.indentgoodsmoney*ig.indentgoodsnumber) as marketSum
+		,(select sum(id.indentgoodsmoney*id.indentgoodsnumber) from indent
+		it,indentgoods id where it.indentnumber = id.indentnumber and date =
+		CONCAT(YEAR(DATE_SUB(it.indenttime,INTERVAL -1 YEAR)
+		),'-',MONTH(it.indenttime)) ) as together
+		,(select
+		sum(iz.indentgoodsmoney*iz.indentgoodsnumber) from indent
+		ie,indentgoods iz where ie.indentnumber = iz.indentnumber and date =
+		CONCAT(YEAR(ie.indenttime),'-',MONTH(DATE_SUB(ie.indenttime,INTERVAL
+		-1 MONTH))) ) as loopWith
+		from indent i,indentgoods ig where i.indentnumber =
+		ig.indentnumber
+		<if test="analyze!=null">
+			and CONCAT(YEAR(#{analyze}),'-',MONTH(#{analyze})) =
+			CONCAT(YEAR(indenttime),'-',MONTH(indenttime))
+		</if>
+		GROUP BY
+		CONCAT(YEAR(indenttime),'-',MONTH(indenttime)) ORDER BY
+		YEAR(indenttime) desc, MONTH(indenttime) desc
+		limit
+		#{pageIndex},#{pageSize}
+	</select>
+
+	<select id="getCount" parameterType="java.util.Map" resultType="int">
+		select count(1) from(
+		select CONCAT(YEAR(indenttime),'-',MONTH(indenttime)) as
+		date,sum(ig.indentgoodsmoney*ig.indentgoodsnumber) as marketSum
+		,(select sum(id.indentgoodsmoney*id.indentgoodsnumber) from indent
+		it,indentgoods id where it.indentnumber = id.indentnumber and date =
+		CONCAT(YEAR(DATE_SUB(it.indenttime,INTERVAL -1 YEAR)
+		),'-',MONTH(it.indenttime)) ) as together
+		,(select
+		sum(iz.indentgoodsmoney*iz.indentgoodsnumber) from indent
+		ie,indentgoods iz where ie.indentnumber = iz.indentnumber and date =
+		CONCAT(YEAR(ie.indenttime),'-',MONTH(DATE_SUB(ie.indenttime,INTERVAL
+		-1 MONTH))) ) as loopWith
+		from indent i,indentgoods ig where i.indentnumber =
+		ig.indentnumber
+		<if test="analyze!=null">
+			and CONCAT(YEAR(#{analyze}),'-',MONTH(#{analyze})) =
+			CONCAT(YEAR(indenttime),'-',MONTH(indenttime))
+		</if>
+		GROUP BY
+		CONCAT(YEAR(indenttime),'-',MONTH(indenttime))) as dd
+	</select>
+
+	<!-- 查询指定部门 -->
+	<select id="getDept" parameterType="java.util.Map" resultType="com.lxit.crm.entity.Analyze">
+		select 
+		u.deptId as name ,CONCAT(YEAR(indenttime),'-',MONTH(indenttime))
+		as
+		date,sum(ig.indentgoodsmoney*ig.indentgoodsnumber) as marketSum
+		,(select sum(id.indentgoodsmoney*id.indentgoodsnumber) from indent
+		it,indentgoods id, user u2 where u2.deptId = deptId and u2.userId =
+		it.userId and it.indentnumber = id.indentnumber and date =
+		CONCAT(YEAR(DATE_SUB(it.indenttime,INTERVAL -1 YEAR)
+		),'-',MONTH(it.indenttime)) ) as together
+		,(select
+		sum(iz.indentgoodsmoney*iz.indentgoodsnumber) from indent
+		ie,indentgoods iz, user u3 where u3.deptId = deptId and u3.userId =
+		ie.userId and ie.indentnumber = iz.indentnumber and date =
+		CONCAT(YEAR(ie.indenttime),'-',MONTH(DATE_SUB(ie.indenttime,INTERVAL
+		-1 MONTH))) ) as loopWith
+		from indent i,indentgoods ig,user u where
+		u.deptId=#{deptId}
+		and i.userId = u.userId 
+		<if test="analyze!=null">
+			and CONCAT(YEAR(#{analyze}),'-',MONTH(#{analyze})) =
+			CONCAT(YEAR(indenttime),'-',MONTH(indenttime))
+		</if>
+		and i.indentnumber = ig.indentnumber GROUP BY
+		CONCAT(YEAR(indenttime),'-',MONTH(indenttime)) order by
+		YEAR(indenttime) desc, MONTH(indenttime) desc
+		limit
+		#{pageIndex},#{pageSize}
+
+	</select>
+
+	<select id="getDeptCount" parameterType="java.util.Map"
+		resultType="int">
+		select count(1) from(select
+		u.deptId as name
+		,CONCAT(YEAR(indenttime),'-',MONTH(indenttime))
+		as
+		date,sum(ig.indentgoodsmoney*ig.indentgoodsnumber) as marketSum
+		,(select sum(id.indentgoodsmoney*id.indentgoodsnumber) from indent
+		it,indentgoods id, user u2 where u2.deptId = deptId and u2.userId =
+		it.userId and it.indentnumber = id.indentnumber and date =
+		CONCAT(YEAR(DATE_SUB(it.indenttime,INTERVAL -1 YEAR)
+		),'-',MONTH(it.indenttime)) ) as together
+		,(select
+		sum(iz.indentgoodsmoney*iz.indentgoodsnumber) from indent
+		ie,indentgoods iz, user u3 where u3.deptId = deptId and u3.userId =
+		ie.userId and ie.indentnumber = iz.indentnumber and date =
+		CONCAT(YEAR(ie.indenttime),'-',MONTH(DATE_SUB(ie.indenttime,INTERVAL
+		-1 MONTH))) ) as loopWith
+		from indent i,indentgoods ig,user u where
+		u.deptId=#{deptId}
+		and i.userId = u.userId 
+		<if test="analyze!=null">
+			and CONCAT(YEAR(#{analyze}),'-',MONTH(#{analyze})) =
+			CONCAT(YEAR(indenttime),'-',MONTH(indenttime))
+		</if>
+		and i.indentnumber = ig.indentnumber GROUP BY
+		CONCAT(YEAR(indenttime),'-',MONTH(indenttime))
+		) as s
+	</select>
+
+
+
+	<!-- 查询某个时间所有的部门 -->
+	<select id="getAllDept" parameterType="java.util.Map"
+		resultType="com.lxit.crm.entity.Analyze">
+		select d.deptName as name
+		,CONCAT(YEAR(indenttime),'-',MONTH(indenttime)) as
+		date,sum(ig.indentgoodsmoney*ig.indentgoodsnumber) as marketSum
+		,(select sum(id.indentgoodsmoney*id.indentgoodsnumber) from indent
+		it,indentgoods id, user u2 where u2.deptId = deptId and u2.userId =
+		it.userId and it.indentnumber = id.indentnumber and date =
+		CONCAT(YEAR(DATE_SUB(it.indenttime,INTERVAL -1 YEAR)
+		),'-',MONTH(it.indenttime)) ) as together
+		,(select
+		sum(iz.indentgoodsmoney*iz.indentgoodsnumber) from indent
+		ie,indentgoods iz, user u3 where u3.deptId = deptId and u3.userId =
+		ie.userId and ie.indentnumber = iz.indentnumber and date =
+		CONCAT(YEAR(ie.indenttime),'-',MONTH(DATE_SUB(ie.indenttime,INTERVAL
+		-1 MONTH))) ) as loopWith
+		from indent i,indentgoods ig,user u,dept d where
+		u.deptId = d.deptId and i.userId = u.userId and i.indentnumber =
+		ig.indentnumber and CONCAT(YEAR(#{analyze}),'-',MONTH(#{analyze})) =
+		CONCAT(YEAR(indenttime),'-',MONTH(indenttime))
+		GROUP BY
+		u.deptId order by
+		YEAR(indenttime) desc, MONTH(indenttime) desc
+		limit #{pageIndex},#{pageSize}
+	</select>
+
+	<select id="getAllDeptCount" parameterType="java.util.Map"
+		resultType="int">
+		select count(1) from (select d.deptName as name
+		,CONCAT(YEAR(indenttime),'-',MONTH(indenttime)) as
+		date,sum(ig.indentgoodsmoney*ig.indentgoodsnumber) as marketSum
+		,(select sum(id.indentgoodsmoney*id.indentgoodsnumber) from indent
+		it,indentgoods id, user u2 where u2.deptId = deptId and u2.userId =
+		it.userId and it.indentnumber = id.indentnumber and date =
+		CONCAT(YEAR(DATE_SUB(it.indenttime,INTERVAL -1 YEAR)
+		),'-',MONTH(it.indenttime)) ) as together
+		,(select
+		sum(iz.indentgoodsmoney*iz.indentgoodsnumber) from indent
+		ie,indentgoods iz, user u3 where u3.deptId = deptId and u3.userId =
+		ie.userId and ie.indentnumber = iz.indentnumber and date =
+		CONCAT(YEAR(ie.indenttime),'-',MONTH(DATE_SUB(ie.indenttime,INTERVAL
+		-1 MONTH))) ) as loopWith
+		from indent i,indentgoods ig,user u,dept d where
+		u.deptId = d.deptId and i.userId = u.userId and i.indentnumber =
+		ig.indentnumber and CONCAT(YEAR(#{analyze}),'-',MONTH(#{analyze})) =
+		CONCAT(YEAR(indenttime),'-',MONTH(indenttime))
+		GROUP BY
+		u.deptId) as s
+	</select>
+
+
+
+
+	<!-- 查询部门下某个时间的所有员工 -->
+	<select id="getAllUser" parameterType="java.util.Map"
+		resultType="com.lxit.crm.entity.Analyze">
+		select
+		u.username as
+		name,CONCAT(YEAR(indenttime),'-',MONTH(indenttime)) as
+		date,i.indentid,sum(ig.indentgoodsmoney*ig.indentgoodsnumber) as
+		marketSum
+		,(select sum(id.indentgoodsmoney*id.indentgoodsnumber) from
+		indent
+		it,indentgoods id where it.indentnumber = id.indentnumber and
+		it.userId=i.userId and date =
+		CONCAT(YEAR(DATE_SUB(it.indenttime,INTERVAL -1 YEAR)
+		),'-',MONTH(it.indenttime)) ) as together
+		,(select
+		sum(iz.indentgoodsmoney*iz.indentgoodsnumber) from indent
+		ie,indentgoods iz where ie.indentnumber = iz.indentnumber and
+		ie.userId=i.userId and date =
+		CONCAT(YEAR(ie.indenttime),'-',MONTH(DATE_SUB(ie.indenttime,INTERVAL
+		-1 MONTH))) ) as loopWith
+		from indent i,indentgoods ig,user u where
+		u.userId = i.userId and u.deptId
+		= #{deptId} and
+		CONCAT(YEAR(#{analyze}),'-',MONTH(#{analyze}))=CONCAT(YEAR(i.indenttime),'-',MONTH(i.indenttime))
+		and i.indentnumber = ig.indentnumber GROUP BY i.userId
+		order by YEAR(indenttime) desc, MONTH(indenttime) desc
+		limit #{pageIndex},#{pageSize}
+	</select>
+
+	<select id="getAllUserCount" parameterType="java.util.Map"
+		resultType="int">
+		select count(1) from (select
+		u.username as
+		name,CONCAT(YEAR(indenttime),'-',MONTH(indenttime)) as
+		date,i.indentid,sum(ig.indentgoodsmoney*ig.indentgoodsnumber) as
+		marketSum
+		,(select sum(id.indentgoodsmoney*id.indentgoodsnumber) from
+		indent
+		it,indentgoods id where it.indentnumber = id.indentnumber and
+		it.userId=i.userId and date =
+		CONCAT(YEAR(DATE_SUB(it.indenttime,INTERVAL -1 YEAR)
+		),'-',MONTH(it.indenttime)) ) as together
+		,(select
+		sum(iz.indentgoodsmoney*iz.indentgoodsnumber) from indent
+		ie,indentgoods iz where ie.indentnumber = iz.indentnumber and
+		ie.userId=i.userId and date =
+		CONCAT(YEAR(ie.indenttime),'-',MONTH(DATE_SUB(ie.indenttime,INTERVAL
+		-1 MONTH))) ) as loopWith
+		from indent i,indentgoods ig,user u where
+		u.userId = i.userId and u.deptId
+		= #{deptId} and
+		CONCAT(YEAR(#{analyze}),'-',MONTH(#{analyze}))=CONCAT(YEAR(i.indenttime),'-',MONTH(i.indenttime))
+		and i.indentnumber = ig.indentnumber GROUP BY i.userId) as uu
+	</select>
+</mapper>

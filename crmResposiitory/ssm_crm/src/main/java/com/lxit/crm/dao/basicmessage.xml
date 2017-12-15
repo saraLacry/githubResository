@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="basicmessageMapper">
+	<resultMap type="com.lxit.crm.entity.Base" id="resultBasicmessageMap">
+		<id column="baseId" property="baseId" />
+		<result column="baseKey" property="baseKey" />
+		<result column="basevalue" property="basevalue" />
+		<result column="basedescribe" property="basedescribe" />
+		<result column="userId" property="userName" />
+	</resultMap>
+
+	<!-- 查询基础信息 -->
+	<select id="basicmessageSelectAll" resultMap="resultBasicmessageMap">
+		select
+		baseId,baseKey,basevalue,basedescribe,userId from base
+	</select>
+
+	<parameterMap type="com.lxit.crm.entity.Base" id="basicmessageParmsMapAdd">
+		<parameter property="baseKey" />
+		<parameter property="basevalue" />
+		<parameter property="basedescribe" />
+		<parameter property="userName" />
+	</parameterMap>
+
+	<!-- 增加基础信息 -->
+	<select id="basicmessageAdd" parameterMap="basicmessageParmsMapAdd"
+		resultType="com.lxit.crm.entity.Base">
+		insert into base (baseKey,basevalue,basedescribe,userId)
+		VALUES
+		(#{baseKey},#{basevalue},#{basedescribe},#{userName})
+	</select>
+
+	<parameterMap type="com.lxit.crm.entity.Base" id="basicmessageParmsMapUpdate">
+		<parameter property="baseId" />
+		<parameter property="baseKey" />
+		<parameter property="basevalue" />
+		<parameter property="basedescribe" />
+	</parameterMap>
+
+	<!-- 修改基础信息 -->
+	<select id="basicmessageUpdate" parameterMap="basicmessageParmsMapUpdate"
+		resultType="com.lxit.crm.entity.Base">
+		update base SET baseKey =#{baseKey} ,basevalue
+		=#{basevalue} ,basedescribe =#{basedescribe} where baseId = #{baseId}
+	</select>
+
+	<parameterMap type="com.lxit.crm.entity.Base" id="basicmessageParmsMapDel">
+		<parameter property="baseId" />
+	</parameterMap>
+
+	<!-- 删除基础信息 -->
+	<select id="basicmessageDel" parameterMap="basicmessageParmsMapDel"
+		resultType="com.lxit.crm.entity.Base">
+		delete from base where baseId = #{baseId}
+	</select>
+</mapper>

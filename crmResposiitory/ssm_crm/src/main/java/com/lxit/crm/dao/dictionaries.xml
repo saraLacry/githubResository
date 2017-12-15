@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dictionariecMapper">
+	<resultMap type="com.lxit.crm.entity.Dictionary" id="resultDictionaryMap">
+		<id column="dectionarycodingId" property="dectionarycodingId" />
+		<result column="dictionarycoding" property="dictionarycoding" />
+		<result column="dictionaryName" property="dictionaryName" />
+		<result column="dictionaryvalue" property="dictionaryvalue" />
+		<result column="lastTime" property="lastTime" />
+		<result column="dictionaryremark" property="dictionaryremark" />
+		<result column="userId" property="userName" />
+	</resultMap>
+
+	<select id="dictionarySelctAll" parameterType="com.lxit.crm.entity.Dictionary"
+		resultMap="resultDictionaryMap">
+		select
+		dectionarycodingId,dictionarycoding,dictionaryName,dictionaryvalue,lastTime,dictionaryremark,userId
+		from dictionary where 1=1 LIMIT #{pageSize},#{pageIndex}
+	</select>
+
+	<select id="dictionarySelectCount" resultType="java.lang.Integer">
+		select COUNT(1)
+		from dictionary
+	</select>
+
+	<parameterMap type="com.lxit.crm.entity.Dictionary" id="dictionaryAddParmsMap">
+		<parameter property="dictionarycoding" />
+		<parameter property="dictionaryName" />
+		<parameter property="dictionaryvalue" />
+		<parameter property="lastTime" />
+		<parameter property="dictionaryremark" />
+		<parameter property="userName" />
+	</parameterMap>
+
+	<select id="dictionaryAdd" parameterMap="dictionaryAddParmsMap"
+		resultType="com.lxit.crm.entity.Dictionary">
+		insert into dictionary
+		(dictionarycoding,dictionaryName,dictionaryvalue,lastTime,dictionaryremark,userId)
+		VALUES(#{dictionarycoding},#{dictionaryName},#{dictionaryvalue},#{lastTime},#{dictionaryremark},#{userName})
+	</select>
+
+	<parameterMap type="com.lxit.crm.entity.Dictionary" id="dictionaryUpdateParmsMap">
+		<parameter property="dectionarycodingId" />
+		<parameter property="dictionarycoding" />
+		<parameter property="dictionaryName" />
+		<parameter property="dictionaryvalue" />
+		<parameter property="lastTime" />
+		<parameter property="dictionaryremark" />
+		<parameter property="userName" />
+	</parameterMap>
+
+	<select id="dictionaryUpdate" parameterMap="dictionaryUpdateParmsMap"
+		resultType="com.lxit.crm.entity.Dictionary">
+		update dictionary set dictionarycoding =
+		#{dictionarycoding},dictionaryName
+		=#{dictionaryName}
+		,dictionaryvalue =
+		#{dictionaryvalue},lastTime = #{lastTime},dictionaryremark =
+		#{dictionaryremark},userId
+		=#{userName} WHERE
+		dectionarycodingId
+		=#{dectionarycodingId}
+	</select>
+
+	<parameterMap type="com.lxit.crm.entity.Dictionary" id="dictionaryDelParmsMap">
+		<parameter property="dectionarycodingId" />
+	</parameterMap>
+
+	<select id="dictionaryDel" parameterMap="dictionaryDelParmsMap"
+		resultType="com.lxit.crm.entity.Dictionary">
+		DELETE from dictionary where dectionarycodingId =
+		#{dectionarycodingId}
+	</select>
+</mapper>
